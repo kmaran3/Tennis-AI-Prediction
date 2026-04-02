@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -m venv venv)",
+      "Bash(source venv/bin/activate)",
+      "Bash(pip install:*)",
+      "Bash(pip freeze:*)",
+      "Bash(npm create:*)",
+      "Read(//usr/local/bin/**)",
+      "Bash(brew list:*)",
+      "Bash(python3 -c \":*)",
+      "Bash(brew install:*)",
+      "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
+      "Bash(npm --version)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(./node_modules/.bin/tailwindcss init:*)",
+      "Bash(/Users/kmaran3/Dropbox/Tennis-AI-Prediction/frontend/node_modules/.bin/tailwindcss init:*)",
+      "Bash(/Users/kmaran3/Dropbox/Tennis-AI-Prediction/frontend/src/App.jsx:*)",
+      "Bash(/Users/kmaran3/Dropbox/Tennis-AI-Prediction/frontend/src/components/OddsComparison.jsx:*)",
+      "Bash(/Users/kmaran3/Dropbox/Tennis-AI-Prediction/frontend/src/components/WinRateChart.jsx:*)",
+      "Bash(/Users/kmaran3/Dropbox/Tennis-AI-Prediction/frontend/src/pages/Home.jsx:*)",
+      "Bash(npm run:*)",
+      "Bash(python3 -m json.tool)"
+    ]
+  }
+}
