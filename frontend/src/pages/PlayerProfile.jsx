@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { getPlayerStats, getRecentForm } from '../api/client'
 import RecentForm from '../components/RecentForm'
 import SurfaceRadar from '../components/SurfaceRadar'
@@ -17,6 +17,7 @@ function StatBox({ label, value }) {
 export default function PlayerProfile() {
   const { name } = useParams()
   const decoded = decodeURIComponent(name)
+  const navigate = useNavigate()
 
   const [stats,      setStats]      = useState(null)
   const [form,       setForm]       = useState([])
@@ -47,7 +48,7 @@ export default function PlayerProfile() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <Link to="/h2h" className="text-xs text-blue-500 hover:underline">← Back</Link>
+          <button onClick={() => navigate(-1)} className="text-xs text-blue-500 hover:underline">← Back</button>
           <h1 className="text-3xl font-bold text-gray-900 mt-1">{decoded}</h1>
         </div>
 
@@ -147,7 +148,7 @@ export default function PlayerProfile() {
       {/* Recent form */}
       <div>
         <h2 className="font-semibold text-gray-800 mb-3">Recent Matches</h2>
-        <RecentForm player={decoded} form={form} isLoading={loadForm} />
+        <RecentForm player={decoded} form={form} isLoading={loadForm} showProfileLink={false} />
       </div>
 
       {/* Link to H2H */}

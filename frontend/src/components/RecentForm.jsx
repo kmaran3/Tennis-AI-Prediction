@@ -1,6 +1,8 @@
 // Displays a player's last N matches as a compact W/L list.
-// Props: player (string), form (array from /api/players/:name/recent-form)
-export default function RecentForm({ player, form, isLoading }) {
+// Props: player (string), form (array from /api/players/:name/recent-form), showProfileLink (bool)
+import { Link } from 'react-router-dom'
+
+export default function RecentForm({ player, form, isLoading, showProfileLink = true }) {
   const surfaceColor = {
     Hard:  'bg-blue-400',
     Clay:  'bg-orange-400',
@@ -25,7 +27,13 @@ export default function RecentForm({ player, form, isLoading }) {
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm font-semibold text-gray-700">{player}</p>
+        {showProfileLink ? (
+          <Link to={`/players/${encodeURIComponent(player)}`} className="text-sm font-semibold text-gray-700 hover:text-blue-600 hover:underline">
+            {player}
+          </Link>
+        ) : (
+          <p className="text-sm font-semibold text-gray-700">{player}</p>
+        )}
         <div className="flex gap-1">
           {streak.split('').map((r, i) => (
             <span

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import PlayerSearch       from '../components/PlayerSearch'
 import SurfaceSelector    from '../components/SurfaceSelector'
 import PredictionCard     from '../components/PredictionCard'
@@ -34,6 +34,32 @@ export default function HeadToHead() {
   const [formB,      setFormB]      = useState([])
   const [loading,    setLoading]    = useState(false)
   const [error,      setError]      = useState('')
+
+  // Restore state from sessionStorage when there are no URL params (e.g. coming back from player profile)
+  useEffect(() => {
+    const hasUrlParams = searchParams.get('a') || searchParams.get('b')
+    if (!hasUrlParams) {
+      try {
+        const saved = JSON.parse(sessionStorage.getItem('h2h_state') || 'null')
+        if (saved) {
+          if (saved.playerA)  setPlayerA(saved.playerA)
+          if (saved.playerB)  setPlayerB(saved.playerB)
+          if (saved.surface)  setSurface(saved.surface)
+          if (saved.bestOf)   setBestOf(saved.bestOf)
+          if (saved.prediction) setPrediction(saved.prediction)
+          if (saved.statsA)   setStatsA(saved.statsA)
+          if (saved.statsB)   setStatsB(saved.statsB)
+        }
+      } catch (_) {}
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Persist state so returning from player profile restores everything
+  useEffect(() => {
+    sessionStorage.setItem('h2h_state', JSON.stringify({
+      playerA, playerB, surface, bestOf, prediction, statsA, statsB,
+    }))
+  }, [playerA, playerB, surface, bestOf, prediction, statsA, statsB])
 
   // Fetch recent form whenever a player is selected
   useEffect(() => {
@@ -92,8 +118,22 @@ export default function HeadToHead() {
       {/* Input card */}
       <div className="bg-white rounded-2xl shadow p-6 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <PlayerSearch label="Player A" onSelect={setPlayerA} placeholder="Search player A..." initialValue={playerA} />
-          <PlayerSearch label="Player B" onSelect={setPlayerB} placeholder="Search player B..." initialValue={playerB} />
+          <div>
+            <PlayerSearch label="Player A" onSelect={setPlayerA} placeholder="Search player A..." initialValue={playerA} />
+            {playerA && (
+              <Link to={`/players/${encodeURIComponent(playerA)}`} className="text-xs text-blue-500 hover:underline mt-1 inline-block">
+                View {playerA}'s profile →
+              </Link>
+            )}
+          </div>
+          <div>
+            <PlayerSearch label="Player B" onSelect={setPlayerB} placeholder="Search player B..." initialValue={playerB} />
+            {playerB && (
+              <Link to={`/players/${encodeURIComponent(playerB)}`} className="text-xs text-blue-500 hover:underline mt-1 inline-block">
+                View {playerB}'s profile →
+              </Link>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-8 items-start">
