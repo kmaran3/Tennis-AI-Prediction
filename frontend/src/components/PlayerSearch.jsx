@@ -7,10 +7,16 @@ import { searchPlayers } from '../api/client'
 //   onSelect(playerName) — called when user clicks a player from the dropdown
 //   placeholder         — placeholder text for the text input
 //   label               — optional label shown above the input
-export default function PlayerSearch({ onSelect, placeholder = "Search player...", label }) {
-  const [query, setQuery]     = useState('')    // Text the user has typed
+//   initialValue        — pre-populate the input (e.g. from URL params)
+export default function PlayerSearch({ onSelect, placeholder = "Search player...", label, initialValue = '' }) {
+  const [query, setQuery]     = useState(initialValue)  // Text the user has typed
   const [results, setResults] = useState([])   // Array of player name strings from API
   const [loading, setLoading] = useState(false)
+
+  // Sync if parent updates initialValue after mount (e.g. URL param navigation)
+  useEffect(() => {
+    if (initialValue) setQuery(initialValue)
+  }, [initialValue])
 
   // This useEffect runs every time `query` changes.
   // We wait 300ms after the last keystroke before calling the API (debouncing).

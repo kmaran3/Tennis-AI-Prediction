@@ -92,8 +92,8 @@ export default function HeadToHead() {
       {/* Input card */}
       <div className="bg-white rounded-2xl shadow p-6 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <PlayerSearch label="Player A" onSelect={setPlayerA} placeholder="Search player A..." />
-          <PlayerSearch label="Player B" onSelect={setPlayerB} placeholder="Search player B..." />
+          <PlayerSearch label="Player A" onSelect={setPlayerA} placeholder="Search player A..." initialValue={playerA} />
+          <PlayerSearch label="Player B" onSelect={setPlayerB} placeholder="Search player B..." initialValue={playerB} />
         </div>
 
         <div className="flex flex-wrap gap-8 items-start">

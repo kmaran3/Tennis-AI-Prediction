@@ -5,6 +5,29 @@ from datetime import date
 router = APIRouter()
 
 
+def _format_score(home: dict, away: dict, status_type: str) -> str | None:
+    """Convert Sofascore period-based tennis score into a readable string like '6-4, 3-1'."""
+    if not home and not away:
+        return None
+    sets = []
+    for period in ["period1", "period2", "period3", "period4", "period5"]:
+        h = home.get(period)
+        a = away.get(period)
+        if h is None or a is None:
+            break
+        sets.append(f"{h}-{a}")
+    if not sets:
+        return None
+    score = ", ".join(sets)
+    # Append live game score for in-progress matches
+    if status_type == "inprogress":
+        hc = home.get("current")
+        ac = away.get("current")
+        if hc is not None and ac is not None:
+            score += f" ({hc}-{ac})"
+    return score
+
+
 @router.get("/today")
 def get_todays_matches():
     """
@@ -37,16 +60,25 @@ def get_todays_matches():
                 continue
 
             tournament_name = event.get("tournament", {}).get("name", "ATP Tour")
-            status_desc = event.get("status", {}).get("description", "Scheduled")
-            completed = event.get("status", {}).get("type", "notstarted") == "finished"
+            status      = event.get("status", {})
+            status_type = status.get("type", "notstarted")   # notstarted | inprogress | finished
+            status_desc = status.get("description", "Scheduled")
+
+            # Build a readable score string from Sofascore's period-based tennis scoring
+            score = _format_score(
+                event.get("homeScore", {}),
+                event.get("awayScore", {}),
+                status_type,
+            )
 
             matches.append({
-                "id":         str(event.get("id", "")),
-                "player_a":   home,
-                "player_b":   away,
-                "tournament": tournament_name,
-                "status":     status_desc,
-                "completed":  completed,
+                "id":          str(event.get("id", "")),
+                "player_a":    home,
+                "player_b":    away,
+                "tournament":  tournament_name,
+                "status":      status_desc,
+                "status_type": status_type,
+                "score":       score,
             })
 
         return {"matches": matches, "date": today_str}
