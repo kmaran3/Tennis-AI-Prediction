@@ -12,12 +12,11 @@ app = FastAPI(title="ATP Tennis Predictor", version="1.0.0")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# CORS — allows the React app at localhost:5173 to call this API
-# In production, replace "http://localhost:5173" with your Vercel domain
+# CORS — allows the React dev server and any Vercel deployment to call this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

@@ -27,3 +27,13 @@ export const predictH2H = (body) =>
 // body: { draw: [...playerNames], surface, best_of, mock }
 export const simulateTournament = (body) =>
   api.post('/api/tournament/simulate', body)
+
+// Parse a tournament draw from pasted text or a base64 image
+// body: { text } or { image_base64, media_type }
+export const parseDraw = (body) =>
+  api.post('/api/tournament/parse-draw', body)
+
+// Fetch a tournament draw by name using Claude's training knowledge
+// body: { tournament_name: string }
+export const fetchDraw = (body) =>
+  api.post('/api/tournament/fetch-draw', body)

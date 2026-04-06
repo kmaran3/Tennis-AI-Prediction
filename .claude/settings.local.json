@@ -21,7 +21,9 @@
       "Bash(/Users/kmaran3/Dropbox/Tennis-AI-Prediction/frontend/src/components/WinRateChart.jsx:*)",
       "Bash(/Users/kmaran3/Dropbox/Tennis-AI-Prediction/frontend/src/pages/Home.jsx:*)",
       "Bash(npm run:*)",
-      "Bash(python3 -m json.tool)"
+      "Bash(python3 -m json.tool)",
+      "Bash(pip show:*)",
+      "Bash(/Users/kmaran3/Dropbox/Tennis-AI-Prediction/backend/venv/bin/pip show:*)"
     ]
   }
 }
