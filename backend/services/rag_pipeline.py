@@ -65,6 +65,9 @@ def index_all_matches():
     """
     collection = get_collection()
     df = load_data()
+    # Only index matches from 2010 onwards — reduces from 67k to ~45k rows,
+    # cutting memory and startup time while keeping all recent match history.
+    df = df[df['year'] >= 2010].reset_index(drop=True)
     total = len(df)
 
     current = collection.count()
