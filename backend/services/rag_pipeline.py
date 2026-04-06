@@ -64,21 +64,27 @@ def index_all_matches():
     Subsequent runs are instant (skipped via count check).
     """
     collection = get_collection()
-
-    if collection.count() > 0:
-        print(f"[RAG] ChromaDB already has {collection.count()} documents. Skipping indexing.")
-        return
-
     df = load_data()
     total = len(df)
-    print(f"[RAG] Indexing {total} matches into ChromaDB. First run only — please wait...")
+
+    current = collection.count()
+    if current >= total:
+        print(f"[RAG] ChromaDB already has {current} documents. Skipping indexing.")
+        return
+
+    if current > 0:
+        print(f"[RAG] Resuming indexing from {current}/{total}...")
+        df = df.iloc[current:]   # Skip already-indexed rows
+    else:
+        print(f"[RAG] Indexing {total} matches into ChromaDB. First run only — please wait...")
 
     documents, ids, metadatas = [], [], []
 
+    offset = current  # preserve original match IDs when resuming
     for i, (_, row) in enumerate(df.iterrows()):
         doc = _match_to_document(row)
         documents.append(doc)
-        ids.append(f"match_{i}")
+        ids.append(f"match_{offset + i}")
         metadatas.append({
             "player_1": str(row['Player_1']),
             "player_2": str(row['Player_2']),

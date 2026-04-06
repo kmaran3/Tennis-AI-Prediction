@@ -28,9 +28,13 @@ app.include_router(tournament.router, prefix="/api/tournament", tags=["Tournamen
 
 @app.on_event("startup")
 async def startup():
-    """Runs once when the server starts. Loads data and indexes into ChromaDB."""
+    """Runs once when the server starts. Loads data, then indexes in background."""
+    import threading
     load_data()
-    index_all_matches()  # No-op if already indexed
+    # Run indexing in a background thread so the server starts immediately
+    # and Railway's health check passes without waiting 20+ minutes.
+    thread = threading.Thread(target=index_all_matches, daemon=True)
+    thread.start()
 
 
 @app.get("/api/health")
