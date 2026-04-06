@@ -1,18 +1,16 @@
-// Displays the full AI prediction result from POST /api/predict/h2h.
-// Props:
-//   prediction — the response object (predicted_winner, win_probability, etc.)
-//   playerA    — name of player A (string)
-//   playerB    — name of player B (string)
-export default function PredictionCard({ prediction, playerA, playerB }) {
-  // Don't render anything if no prediction has been made yet
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
+
+export default function PredictionCard({ prediction, playerA, playerB, surface, bestOf }) {
+  const [copied, setCopied] = useState(false)
+
   if (!prediction) return null
 
   const {
     predicted_winner, win_probability, confidence,
-    key_factors, narrative, predicted_score, upset_potential
+    key_factors, narrative, predicted_score, upset_potential,
   } = prediction
 
-  // Color-code confidence and upset badges
   const confidenceBadge = {
     high:   'bg-green-100 text-green-800',
     medium: 'bg-yellow-100 text-yellow-800',
@@ -25,11 +23,28 @@ export default function PredictionCard({ prediction, playerA, playerB }) {
     high:   'bg-red-100 text-red-800',
   }[upset_potential] || 'bg-gray-100 text-gray-700'
 
-  // Calculate the bar width for each player
-  // If playerA is the predicted winner, bar fills to win_probability from the left
   const barWidthA = predicted_winner === playerA
     ? win_probability * 100
     : (1 - win_probability) * 100
+
+  const handleShare = async () => {
+    const params = new URLSearchParams({
+      a: playerA,
+      b: playerB,
+      ...(surface ? { surface } : {}),
+      ...(bestOf  ? { best_of: bestOf } : {}),
+    })
+    const url = `${window.location.origin}/h2h?${params}`
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `${playerA} vs ${playerB} — ATP Predictor`, url })
+      } else {
+        await navigator.clipboard.writeText(url)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      }
+    } catch (_) {}
+  }
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 space-y-5">
@@ -37,23 +52,30 @@ export default function PredictionCard({ prediction, playerA, playerB }) {
       {/* Winner header */}
       <div className="text-center border-b pb-4">
         <p className="text-xs text-gray-400 uppercase tracking-widest">Predicted Winner</p>
-        <p className="text-3xl font-bold text-gray-900 mt-1">{predicted_winner}</p>
+        <Link
+          to={`/players/${encodeURIComponent(predicted_winner)}`}
+          className="text-3xl font-bold text-gray-900 mt-1 hover:text-blue-600 transition-colors block"
+        >
+          {predicted_winner}
+        </Link>
         <p className="text-sm text-gray-400 mt-1">Predicted score: {predicted_score}</p>
       </div>
 
       {/* Win probability bar */}
       <div>
         <div className="flex justify-between text-xs text-gray-500 mb-1.5">
-          <span className="font-medium">{playerA}</span>
-          <span className="font-medium">{playerB}</span>
+          <Link to={`/players/${encodeURIComponent(playerA)}`} className="font-medium hover:text-blue-500">
+            {playerA}
+          </Link>
+          <Link to={`/players/${encodeURIComponent(playerB)}`} className="font-medium hover:text-blue-500">
+            {playerB}
+          </Link>
         </div>
         <div className="w-full h-5 bg-gray-100 rounded-full overflow-hidden flex">
-          {/* Player A's portion of the bar */}
           <div
             className="h-full bg-blue-500 transition-all duration-700 ease-out"
             style={{ width: `${barWidthA}%` }}
           />
-          {/* Player B's portion fills the rest */}
           <div className="h-full bg-purple-500 flex-1" />
         </div>
         <div className="flex justify-between text-xs mt-1 font-semibold">
@@ -62,7 +84,7 @@ export default function PredictionCard({ prediction, playerA, playerB }) {
         </div>
       </div>
 
-      {/* Confidence and upset badges */}
+      {/* Badges */}
       <div className="flex flex-wrap gap-2">
         <span className={`text-xs px-3 py-1 rounded-full font-medium ${confidenceBadge}`}>
           Confidence: {confidence}
@@ -72,7 +94,7 @@ export default function PredictionCard({ prediction, playerA, playerB }) {
         </span>
       </div>
 
-      {/* Key factors list */}
+      {/* Key factors */}
       <div>
         <p className="text-sm font-semibold text-gray-700 mb-2">Key Factors</p>
         <ul className="space-y-1.5">
@@ -85,9 +107,32 @@ export default function PredictionCard({ prediction, playerA, playerB }) {
         </ul>
       </div>
 
-      {/* AI analyst narrative */}
+      {/* Narrative */}
       <div className="bg-gray-50 rounded-xl p-4 border-l-4 border-green-400">
         <p className="text-sm text-gray-700 leading-relaxed italic">"{narrative}"</p>
+      </div>
+
+      {/* Share + profile links */}
+      <div className="flex flex-wrap gap-2 pt-1 border-t">
+        <button
+          onClick={handleShare}
+          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-800
+                     border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
+        >
+          {copied ? '✓ Copied!' : '🔗 Share'}
+        </button>
+        <Link
+          to={`/players/${encodeURIComponent(playerA)}`}
+          className="text-xs text-blue-500 hover:underline border border-gray-200 rounded-lg px-3 py-1.5"
+        >
+          {playerA} profile
+        </Link>
+        <Link
+          to={`/players/${encodeURIComponent(playerB)}`}
+          className="text-xs text-blue-500 hover:underline border border-gray-200 rounded-lg px-3 py-1.5"
+        >
+          {playerB} profile
+        </Link>
       </div>
     </div>
   )

@@ -37,3 +37,12 @@ export const parseDraw = (body) =>
 // body: { tournament_name: string }
 export const fetchDraw = (body) =>
   api.post('/api/tournament/fetch-draw', body)
+
+// Get recent match form for a player
+// name: string, n: number of matches
+export const getRecentForm = (name, n = 8) =>
+  api.get(`/api/players/${encodeURIComponent(name)}/recent-form?n=${n}`)
+
+// Get today's ATP matches from ESPN
+export const getTodaysMatches = () =>
+  api.get('/api/matches/today')

@@ -24,3 +24,33 @@ def player_stats(player_name: str, surface: str = None):
     Optionally filter by surface (Hard, Clay, Grass).
     """
     return get_player_stats(player_name, surface)
+
+
+@router.get("/{player_name}/recent-form")
+def recent_form(player_name: str, n: int = 8):
+    """Return the last N matches for a player, most recent first."""
+    import pandas as pd
+    from services.data_loader import load_data
+
+    df = load_data()
+    mask = (df['Player_1'] == player_name) | (df['Player_2'] == player_name)
+    matches = df[mask].sort_values('Date', ascending=False).head(n)
+
+    if matches.empty:
+        return {'player': player_name, 'form': []}
+
+    form = []
+    for _, row in matches.iterrows():
+        won = row['Winner'] == player_name
+        opponent = row['Player_2'] if row['Player_1'] == player_name else row['Player_1']
+        form.append({
+            'date':       str(row['Date'])[:10],
+            'tournament': str(row['Tournament']),
+            'surface':    str(row['Surface']),
+            'opponent':   opponent,
+            'won':        bool(won),
+            'score':      str(row['Score'])  if pd.notna(row['Score'])  else '',
+            'round':      str(row['Round'])  if pd.notna(row['Round'])  else '',
+        })
+
+    return {'player': player_name, 'form': form}
