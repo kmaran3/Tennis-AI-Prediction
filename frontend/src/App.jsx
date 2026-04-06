@@ -16,7 +16,7 @@ export default function App() {
           <Route path="/today"         element={<Today />} />
           <Route path="/h2h"           element={<HeadToHead />} />
           <Route path="/tournament"    element={<Tournament />} />
-          <Route path="/players/:name" element={<PlayerProfile />} />
+          <Route path="/players"        element={<PlayerProfile />} />
         </Routes>
       </main>
     </BrowserRouter>

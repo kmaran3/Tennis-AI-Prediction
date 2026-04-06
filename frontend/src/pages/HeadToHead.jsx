@@ -18,43 +18,31 @@ function savePrediction(record) {
   } catch (_) {}
 }
 
+// Read persisted H2H state once at initialization (before component mounts)
+function loadSaved(searchParams) {
+  if (searchParams.get('a') || searchParams.get('b')) return {}  // URL params take priority
+  try { return JSON.parse(sessionStorage.getItem('h2h_state') || '{}') || {} } catch (_) { return {} }
+}
+
 export default function HeadToHead() {
   const [searchParams] = useSearchParams()
+  const saved = loadSaved(searchParams)
 
-  // Pre-populate from URL params (Today page "Predict →" uses these)
-  const [playerA, setPlayerA] = useState(searchParams.get('a') || '')
-  const [playerB, setPlayerB] = useState(searchParams.get('b') || '')
-  const [surface, setSurface] = useState(searchParams.get('surface') || 'Hard')
-  const [bestOf,  setBestOf]  = useState(Number(searchParams.get('best_of')) || 3)
+  // Pre-populate from URL params (Today page), fall back to sessionStorage, then empty
+  const [playerA, setPlayerA] = useState(searchParams.get('a') || saved.playerA || '')
+  const [playerB, setPlayerB] = useState(searchParams.get('b') || saved.playerB || '')
+  const [surface, setSurface] = useState(searchParams.get('surface') || saved.surface || 'Hard')
+  const [bestOf,  setBestOf]  = useState(Number(searchParams.get('best_of')) || saved.bestOf || 3)
 
-  const [prediction, setPrediction] = useState(null)
-  const [statsA,     setStatsA]     = useState(null)
-  const [statsB,     setStatsB]     = useState(null)
+  const [prediction, setPrediction] = useState(saved.prediction || null)
+  const [statsA,     setStatsA]     = useState(saved.statsA || null)
+  const [statsB,     setStatsB]     = useState(saved.statsB || null)
   const [formA,      setFormA]      = useState([])
   const [formB,      setFormB]      = useState([])
   const [loading,    setLoading]    = useState(false)
   const [error,      setError]      = useState('')
 
-  // Restore state from sessionStorage when there are no URL params (e.g. coming back from player profile)
-  useEffect(() => {
-    const hasUrlParams = searchParams.get('a') || searchParams.get('b')
-    if (!hasUrlParams) {
-      try {
-        const saved = JSON.parse(sessionStorage.getItem('h2h_state') || 'null')
-        if (saved) {
-          if (saved.playerA)  setPlayerA(saved.playerA)
-          if (saved.playerB)  setPlayerB(saved.playerB)
-          if (saved.surface)  setSurface(saved.surface)
-          if (saved.bestOf)   setBestOf(saved.bestOf)
-          if (saved.prediction) setPrediction(saved.prediction)
-          if (saved.statsA)   setStatsA(saved.statsA)
-          if (saved.statsB)   setStatsB(saved.statsB)
-        }
-      } catch (_) {}
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Persist state so returning from player profile restores everything
+  // Persist state whenever it changes so navigating to player profile and back restores everything
   useEffect(() => {
     sessionStorage.setItem('h2h_state', JSON.stringify({
       playerA, playerB, surface, bestOf, prediction, statsA, statsB,
@@ -121,7 +109,7 @@ export default function HeadToHead() {
           <div>
             <PlayerSearch label="Player A" onSelect={setPlayerA} placeholder="Search player A..." initialValue={playerA} />
             {playerA && (
-              <Link to={`/players/${encodeURIComponent(playerA)}`} className="text-xs text-blue-500 hover:underline mt-1 inline-block">
+              <Link to={`/players?name=${encodeURIComponent(playerA)}`} className="text-xs text-blue-500 hover:underline mt-1 inline-block">
                 View {playerA}'s profile →
               </Link>
             )}
@@ -129,7 +117,7 @@ export default function HeadToHead() {
           <div>
             <PlayerSearch label="Player B" onSelect={setPlayerB} placeholder="Search player B..." initialValue={playerB} />
             {playerB && (
-              <Link to={`/players/${encodeURIComponent(playerB)}`} className="text-xs text-blue-500 hover:underline mt-1 inline-block">
+              <Link to={`/players?name=${encodeURIComponent(playerB)}`} className="text-xs text-blue-500 hover:underline mt-1 inline-block">
                 View {playerB}'s profile →
               </Link>
             )}

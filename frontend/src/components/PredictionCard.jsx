@@ -53,7 +53,7 @@ export default function PredictionCard({ prediction, playerA, playerB, surface, 
       <div className="text-center border-b pb-4">
         <p className="text-xs text-gray-400 uppercase tracking-widest">Predicted Winner</p>
         <Link
-          to={`/players/${encodeURIComponent(predicted_winner)}`}
+          to={`/players?name=${encodeURIComponent(predicted_winner)}`}
           className="text-3xl font-bold text-gray-900 mt-1 hover:text-blue-600 transition-colors block"
         >
           {predicted_winner}
@@ -64,10 +64,10 @@ export default function PredictionCard({ prediction, playerA, playerB, surface, 
       {/* Win probability bar */}
       <div>
         <div className="flex justify-between text-xs text-gray-500 mb-1.5">
-          <Link to={`/players/${encodeURIComponent(playerA)}`} className="font-medium hover:text-blue-500">
+          <Link to={`/players?name=${encodeURIComponent(playerA)}`} className="font-medium hover:text-blue-500">
             {playerA}
           </Link>
-          <Link to={`/players/${encodeURIComponent(playerB)}`} className="font-medium hover:text-blue-500">
+          <Link to={`/players?name=${encodeURIComponent(playerB)}`} className="font-medium hover:text-blue-500">
             {playerB}
           </Link>
         </div>
@@ -122,13 +122,13 @@ export default function PredictionCard({ prediction, playerA, playerB, surface, 
           {copied ? '✓ Copied!' : '🔗 Share'}
         </button>
         <Link
-          to={`/players/${encodeURIComponent(playerA)}`}
+          to={`/players?name=${encodeURIComponent(playerA)}`}
           className="text-xs text-blue-500 hover:underline border border-gray-200 rounded-lg px-3 py-1.5"
         >
           {playerA} profile
         </Link>
         <Link
-          to={`/players/${encodeURIComponent(playerB)}`}
+          to={`/players?name=${encodeURIComponent(playerB)}`}
           className="text-xs text-blue-500 hover:underline border border-gray-200 rounded-lg px-3 py-1.5"
         >
           {playerB} profile

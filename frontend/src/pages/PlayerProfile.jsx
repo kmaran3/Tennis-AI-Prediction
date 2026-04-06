@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { getPlayerStats, getRecentForm } from '../api/client'
 import RecentForm from '../components/RecentForm'
 import SurfaceRadar from '../components/SurfaceRadar'
@@ -15,8 +15,8 @@ function StatBox({ label, value }) {
 }
 
 export default function PlayerProfile() {
-  const { name } = useParams()
-  const decoded = decodeURIComponent(name)
+  const [searchParams] = useSearchParams()
+  const decoded = searchParams.get('name') || ''
   const navigate = useNavigate()
 
   const [stats,      setStats]      = useState(null)
@@ -154,7 +154,7 @@ export default function PlayerProfile() {
       {/* Link to H2H */}
       <div className="text-center">
         <Link
-          to={`/h2h?a=${encodeURIComponent(decoded)}`}
+          to={`/h2h?a=${encodeURIComponent(decoded)}&surface=${surface || 'Hard'}`}
           className="inline-block bg-green-500 hover:bg-green-600 text-white
                      font-semibold px-6 py-3 rounded-xl transition-all shadow-sm text-sm"
         >

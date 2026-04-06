@@ -28,7 +28,7 @@ export default function RecentForm({ player, form, isLoading, showProfileLink = 
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         {showProfileLink ? (
-          <Link to={`/players/${encodeURIComponent(player)}`} className="text-sm font-semibold text-gray-700 hover:text-blue-600 hover:underline">
+          <Link to={`/players?name=${encodeURIComponent(player)}`} className="text-sm font-semibold text-gray-700 hover:text-blue-600 hover:underline">
             {player}
           </Link>
         ) : (
