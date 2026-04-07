@@ -4,18 +4,18 @@ import SurfaceSelector   from '../components/SurfaceSelector'
 import TournamentBracket from '../components/TournamentBracket'
 import { simulateTournament, parseDraw, fetchDraw } from '../api/client'
 
-const DRAW_SIZES = [4, 8, 16, 32]
+const DRAW_SIZES = [32, 64, 128]
 
-// Snap a number to the nearest valid draw size (power of 2 between 4 and 32)
+// Snap a number to the nearest valid draw size
 function snapToDrawSize(n) {
-  const valid = [4, 8, 16, 32]
-  return valid.find(s => s >= n) || 32
+  const valid = [32, 64, 128]
+  return valid.find(s => s >= n) || 128
 }
 
 export default function Tournament() {
   // ── Draw state ──────────────────────────────────────────────────────────
   const [draw,           setDraw]           = useState([])
-  const [drawSize,       setDrawSize]       = useState(8)
+  const [drawSize,       setDrawSize]       = useState(32)
   const [completedRounds, setCompletedRounds] = useState([])  // pre-populated from image
   const [surface,        setSurface]        = useState('Hard')
   const [bestOf,         setBestOf]         = useState(3)

@@ -18,22 +18,22 @@ function savePrediction(record) {
   } catch (_) {}
 }
 
-// Read persisted H2H state once at initialization (before component mounts)
-function loadSaved(searchParams) {
-  if (searchParams.get('a') || searchParams.get('b')) return {}  // URL params take priority
+// Always read persisted state — URL params override names/surface but never clear the prediction
+function loadSaved() {
   try { return JSON.parse(sessionStorage.getItem('h2h_state') || '{}') || {} } catch (_) { return {} }
 }
 
 export default function HeadToHead() {
   const [searchParams] = useSearchParams()
-  const saved = loadSaved(searchParams)
+  const saved = loadSaved()
 
-  // Pre-populate from URL params (Today page), fall back to sessionStorage, then empty
+  // URL params (from Today page) take priority over saved names/surface
   const [playerA, setPlayerA] = useState(searchParams.get('a') || saved.playerA || '')
   const [playerB, setPlayerB] = useState(searchParams.get('b') || saved.playerB || '')
   const [surface, setSurface] = useState(searchParams.get('surface') || saved.surface || 'Hard')
   const [bestOf,  setBestOf]  = useState(Number(searchParams.get('best_of')) || saved.bestOf || 3)
 
+  // Prediction/stats always restored from sessionStorage (independent of how we navigated here)
   const [prediction, setPrediction] = useState(saved.prediction || null)
   const [statsA,     setStatsA]     = useState(saved.statsA || null)
   const [statsB,     setStatsB]     = useState(saved.statsB || null)

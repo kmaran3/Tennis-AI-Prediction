@@ -76,7 +76,6 @@ export default function Today() {
   const [matches, setMatches] = useState([])
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState('')
-  const [surface, setSurface] = useState('Hard')
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -91,7 +90,7 @@ export default function Today() {
   }, [])
 
   const handlePredict = (match) => {
-    navigate(`/h2h?a=${encodeURIComponent(match.player_a)}&b=${encodeURIComponent(match.player_b)}&surface=${surface}`)
+    navigate(`/h2h?a=${encodeURIComponent(match.player_a)}&b=${encodeURIComponent(match.player_b)}&surface=${match.surface || 'Hard'}`)
   }
 
   const today = new Date().toLocaleDateString('en-US', {
@@ -117,7 +116,16 @@ export default function Today() {
             {match.player_b}
           </p>
         </div>
-        <p className="text-xs text-gray-400 mt-0.5 truncate">{match.tournament}</p>
+        <p className="text-xs text-gray-400 mt-0.5 truncate">
+          {match.tournament}
+          {match.surface && (
+            <span className={`ml-2 inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${
+              match.surface === 'Clay'  ? 'bg-orange-100 text-orange-700' :
+              match.surface === 'Grass' ? 'bg-green-100 text-green-700'  :
+                                          'bg-blue-100 text-blue-700'
+            }`}>{match.surface}</span>
+          )}
+        </p>
       </div>
 
       {/* Score (live or final) */}
@@ -152,29 +160,9 @@ export default function Today() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Today's Matches</h1>
-          <p className="text-sm text-gray-400 mt-1">{today} · ATP Tour</p>
-        </div>
-
-        {/* Surface picker for predictions */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {['Hard', 'Clay', 'Grass'].map(s => (
-            <button
-              key={s}
-              onClick={() => setSurface(s)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                surface === s
-                  ? 'bg-gray-900 text-white border-gray-900'
-                  : 'border-gray-300 text-gray-500 hover:border-gray-500'
-              }`}
-            >
-              {s}
-            </button>
-          ))}
-          <span className="text-xs text-gray-400">surface for predictions</span>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Today's Matches</h1>
+        <p className="text-sm text-gray-400 mt-1">{today} · ATP Tour</p>
       </div>
 
       {error && <p className="text-sm text-amber-600 bg-amber-50 rounded-lg px-4 py-2">{error}</p>}

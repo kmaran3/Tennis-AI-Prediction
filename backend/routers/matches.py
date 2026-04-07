@@ -4,6 +4,22 @@ from datetime import date
 
 router = APIRouter()
 
+_SURFACE_MAP = {
+    "red clay":       "Clay",
+    "clay":           "Clay",
+    "grass":          "Grass",
+    "artificial grass": "Grass",
+    "hard":           "Hard",
+    "indoor hard":    "Hard",
+    "hardcourt":      "Hard",
+    "carpet":         "Hard",
+}
+
+def _normalize_surface(raw: str | None) -> str:
+    if not raw:
+        return "Hard"
+    return _SURFACE_MAP.get(raw.lower(), "Hard")
+
 
 def _format_score(home: dict, away: dict, status_type: str) -> str | None:
     """Convert Sofascore period-based tennis score into a readable string like '6-4, 3-1'."""
@@ -64,6 +80,10 @@ def get_todays_matches():
             status_type = status.get("type", "notstarted")   # notstarted | inprogress | finished
             status_desc = status.get("description", "Scheduled")
 
+            raw_surface = event.get("groundType") or \
+                event.get("tournament", {}).get("uniqueTournament", {}).get("groundType")
+            surface = _normalize_surface(raw_surface)
+
             # Build a readable score string from Sofascore's period-based tennis scoring
             score = _format_score(
                 event.get("homeScore", {}),
@@ -79,6 +99,7 @@ def get_todays_matches():
                 "status":      status_desc,
                 "status_type": status_type,
                 "score":       score,
+                "surface":     surface,
             })
 
         return {"matches": matches, "date": today_str}
