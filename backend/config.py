@@ -9,6 +9,8 @@ OPENAI_API_KEY      = os.getenv("OPENAI_API_KEY")
 CHROMA_PERSIST_DIR  = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
 DATA_PATH           = os.getenv("DATA_PATH", "./data/atp_tennis.csv")
 
+JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-change-in-production")
+
 # Model names — update here to upgrade without touching other files
 CLAUDE_MODEL  = "claude-sonnet-4-6"
 OPENAI_MODEL  = "gpt-4o"

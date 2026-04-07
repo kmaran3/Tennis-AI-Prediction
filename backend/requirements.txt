@@ -99,3 +99,4 @@ websocket-client==1.9.0
 websockets==16.0
 wrapt==2.1.2
 zipp==3.23.0
+python-jose[cryptography]==3.3.0

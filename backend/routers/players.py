@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query
-from services.data_loader import get_all_player_names, resolve_player_name
-from services.stats_engine import get_player_stats
+from services.data_loader import get_all_player_names, find_player_names, resolve_player_name, _norm
+from services.stats_engine import get_player_stats, get_h2h
 
 router = APIRouter()
 
@@ -12,8 +12,8 @@ def search_players(q: str = Query(..., min_length=2)):
     Returns up to 20 matches.
     """
     all_names = get_all_player_names()
-    q_lower = q.lower()
-    matches = [name for name in all_names if q_lower in name.lower()]
+    q_norm = _norm(q)
+    matches = [name for name in all_names if q_norm in _norm(name)]
     return {"results": matches[:20]}
 
 
@@ -27,15 +27,21 @@ def player_stats(player_name: str, surface: str = None):
     return get_player_stats(resolve_player_name(player_name), surface)
 
 
+@router.get("/h2h")
+def head_to_head(a: str = Query(...), b: str = Query(...), surface: str = None):
+    """Return head-to-head record between two players, optionally filtered by surface."""
+    return get_h2h(a, b, surface)
+
+
 @router.get("/{player_name}/recent-form")
 def recent_form(player_name: str, n: int = 8):
     """Return the last N matches for a player, most recent first."""
     import pandas as pd
     from services.data_loader import load_data
 
-    player_name = resolve_player_name(player_name)
+    names = find_player_names(player_name)
     df = load_data()
-    mask = (df['Player_1'] == player_name) | (df['Player_2'] == player_name)
+    mask = df['Player_1'].isin(names) | df['Player_2'].isin(names)
     matches = df[mask].sort_values('Date', ascending=False).head(n)
 
     if matches.empty:
@@ -43,8 +49,8 @@ def recent_form(player_name: str, n: int = 8):
 
     form = []
     for _, row in matches.iterrows():
-        won = row['Winner'] == player_name
-        opponent = row['Player_2'] if row['Player_1'] == player_name else row['Player_1']
+        won = row['Winner'] in names
+        opponent = row['Player_2'] if row['Player_1'] in names else row['Player_1']
         form.append({
             'date':       str(row['Date'])[:10],
             'tournament': str(row['Tournament']),

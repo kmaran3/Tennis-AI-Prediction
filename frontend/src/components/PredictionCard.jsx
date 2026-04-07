@@ -1,8 +1,6 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-export default function PredictionCard({ prediction, playerA, playerB, surface, bestOf }) {
-  const [copied, setCopied] = useState(false)
+export default function PredictionCard({ prediction, playerA, playerB, surface, bestOf, onSave, saved }) {
 
   if (!prediction) return null
 
@@ -27,24 +25,6 @@ export default function PredictionCard({ prediction, playerA, playerB, surface, 
     ? win_probability * 100
     : (1 - win_probability) * 100
 
-  const handleShare = async () => {
-    const params = new URLSearchParams({
-      a: playerA,
-      b: playerB,
-      ...(surface ? { surface } : {}),
-      ...(bestOf  ? { best_of: bestOf } : {}),
-    })
-    const url = `${window.location.origin}/h2h?${params}`
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: `${playerA} vs ${playerB} — ATP Predictor`, url })
-      } else {
-        await navigator.clipboard.writeText(url)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      }
-    } catch (_) {}
-  }
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 space-y-5">
@@ -112,14 +92,18 @@ export default function PredictionCard({ prediction, playerA, playerB, surface, 
         <p className="text-sm text-gray-700 leading-relaxed italic">"{narrative}"</p>
       </div>
 
-      {/* Share + profile links */}
+      {/* Save + profile links */}
       <div className="flex flex-wrap gap-2 pt-1 border-t">
         <button
-          onClick={handleShare}
-          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-800
-                     border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
+          onClick={onSave}
+          disabled={saved}
+          className={`flex items-center gap-1.5 text-xs border rounded-lg px-3 py-1.5 transition-colors ${
+            saved
+              ? 'border-green-300 text-green-600 bg-green-50 cursor-default'
+              : 'border-gray-200 text-gray-500 hover:text-gray-800'
+          }`}
         >
-          {copied ? '✓ Copied!' : '🔗 Share'}
+          {saved ? '✓ Saved' : '🔖 Save'}
         </button>
         <Link
           to={`/players?name=${encodeURIComponent(playerA)}`}

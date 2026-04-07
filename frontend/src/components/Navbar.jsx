@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 export default function Navbar() {
   const { pathname } = useLocation()
   const [open, setOpen] = useState(false)
+  const { user, logout } = useAuth()
 
   const links = [
     { to: '/',           label: 'Home' },
-    { to: '/today',      label: "Today" },
+    { to: '/today',      label: 'Match Center' },
     { to: '/h2h',        label: 'Head-to-Head' },
     { to: '/tournament', label: 'Tournament' },
   ]
@@ -26,11 +28,34 @@ export default function Navbar() {
           🎾 ATP Predictor
         </Link>
 
-        {/* Desktop links */}
-        <div className="hidden md:flex gap-6">
+        {/* Desktop links + auth */}
+        <div className="hidden md:flex items-center gap-6">
           {links.map(({ to, label }) => (
             <Link key={to} to={to} className={linkClass(to)}>{label}</Link>
           ))}
+
+          {/* Auth section */}
+          {user ? (
+            <div className="flex items-center gap-3 border-l border-gray-700 pl-5">
+              <span className="text-sm text-gray-300">Hi, <span className="text-white font-semibold">{user.username}</span></span>
+              <button
+                onClick={logout}
+                className="text-xs text-gray-400 hover:text-white border border-gray-600 hover:border-gray-400
+                           px-3 py-1.5 rounded-lg transition-colors"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <div className="border-l border-gray-700 pl-5">
+              <Link
+                to="/login"
+                className="text-sm text-gray-300 hover:text-green-400 transition-colors"
+              >
+                Sign In
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Mobile hamburger */}
@@ -59,6 +84,23 @@ export default function Navbar() {
               {label}
             </Link>
           ))}
+
+          {/* Mobile auth */}
+          {user ? (
+            <>
+              <span className="text-sm text-gray-300">Hi, <span className="text-white font-semibold">{user.username}</span></span>
+              <button
+                onClick={() => { logout(); setOpen(false) }}
+                className="text-sm text-gray-400 hover:text-white text-left transition-colors"
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <Link to="/login" onClick={() => setOpen(false)} className="text-sm text-gray-300 hover:text-green-400 transition-colors">
+              Sign In
+            </Link>
+          )}
         </div>
       )}
     </nav>

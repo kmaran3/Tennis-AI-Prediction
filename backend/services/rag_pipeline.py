@@ -112,22 +112,26 @@ def retrieve_context(player_a: str, player_b: str, surface: str, n_results: int 
     Uses semantic similarity — returns matches involving either player on the given surface.
     Returns a single formatted string ready to paste into an LLM prompt.
     """
+    from services.data_loader import find_player_names
     collection = get_collection()
 
     query = f"{player_a} vs {player_b} on {surface}"
+
+    # Build OR filter covering all dataset name variants for each player
+    names_a = find_player_names(player_a)
+    names_b = find_player_names(player_b)
+    name_filters = (
+        [{"player_1": n} for n in names_a] +
+        [{"player_2": n} for n in names_a] +
+        [{"player_1": n} for n in names_b] +
+        [{"player_2": n} for n in names_b]
+    )
 
     try:
         results = collection.query(
             query_texts=[query],
             n_results=n_results,
-            where={
-                "$or": [
-                    {"player_1": player_a},
-                    {"player_2": player_a},
-                    {"player_1": player_b},
-                    {"player_2": player_b},
-                ]
-            }
+            where={"$or": name_filters} if len(name_filters) > 1 else name_filters[0]
         )
     except Exception:
         # ChromaDB where-filter fails if collection is empty or filter finds nothing

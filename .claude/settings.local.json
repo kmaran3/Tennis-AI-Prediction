@@ -23,7 +23,8 @@
       "Bash(npm run:*)",
       "Bash(python3 -m json.tool)",
       "Bash(pip show:*)",
-      "Bash(/Users/kmaran3/Dropbox/Tennis-AI-Prediction/backend/venv/bin/pip show:*)"
+      "Bash(/Users/kmaran3/Dropbox/Tennis-AI-Prediction/backend/venv/bin/pip show:*)",
+      "Bash(python3:*)"
     ]
   }
 }

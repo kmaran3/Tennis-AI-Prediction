@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException, Request
 from models.schemas import H2HRequest
-from services.stats_engine import get_player_stats, get_h2h
+from services.stats_engine import get_player_stats, get_h2h, get_recent_form
 from services.rag_pipeline import retrieve_context
 from services.llm_client import predict, build_h2h_prompt
+from services.data_loader import resolve_player_name
 from rate_limiter import limiter
 
 router = APIRouter()
@@ -19,20 +20,29 @@ async def predict_h2h(request: Request, req: H2HRequest):
     4. Build prompt and call LLM
     5. Attach market comparison fields and return
     """
-    stats_a = get_player_stats(req.player_a, req.surface)
-    stats_b = get_player_stats(req.player_b, req.surface)
-    h2h     = get_h2h(req.player_a, req.player_b, req.surface)
-    context = retrieve_context(req.player_a, req.player_b, req.surface)
+    # Resolve to dataset names for all data lookups (handles full names from Sofascore etc.)
+    ds_a = resolve_player_name(req.player_a)
+    ds_b = resolve_player_name(req.player_b)
+
+    stats_a  = get_player_stats(ds_a, req.surface)
+    stats_b  = get_player_stats(ds_b, req.surface)
+    h2h      = get_h2h(ds_a, ds_b, req.surface)
+    context  = retrieve_context(ds_a, ds_b, req.surface)
+    form_a   = get_recent_form(ds_a)
+    form_b   = get_recent_form(ds_b)
 
     prompt = build_h2h_prompt(
-        player_a=req.player_a,
+        player_a=req.player_a,  # keep original names for readable narrative
         player_b=req.player_b,
         surface=req.surface,
         best_of=req.best_of,
         stats_a=stats_a,
         stats_b=stats_b,
         h2h=h2h,
-        context=context
+        context=context,
+        form_a=form_a,
+        form_b=form_b,
+        accuracy_context=req.accuracy_context,
     )
 
     result = predict(prompt)

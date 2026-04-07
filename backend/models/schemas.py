@@ -7,6 +7,7 @@ class H2HRequest(BaseModel):
     player_b: str
     surface: Literal["Hard", "Clay", "Grass"]
     best_of: Literal[3, 5] = 3
+    accuracy_context: Optional[dict] = None  # Historical accuracy stats for self-calibration
 
 
 class TournamentRequest(BaseModel):

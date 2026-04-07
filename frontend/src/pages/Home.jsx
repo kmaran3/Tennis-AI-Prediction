@@ -1,115 +1,183 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { getMatchResult } from '../api/client'
+import { useAuth } from '../context/AuthContext'
+
+const storageKey = (email) => `atp_predictions_${email}`
 
 // ── Accuracy Tracker ────────────────────────────────────────────────────────
-function AccuracyTracker() {
+function AccuracyTracker({ userEmail }) {
   const [history, setHistory] = useState([])
-  const [editing, setEditing] = useState(null)  // id of the record being edited
+  const [showAll, setShowAll] = useState(false)
+  const navigate = useNavigate()
+
+  const settlingRef = useRef(false)
 
   useEffect(() => {
+    settlingRef.current = false
+    let current
     try {
-      setHistory(JSON.parse(localStorage.getItem('atp_predictions') || '[]'))
-    } catch (_) {}
-  }, [])
+      current = JSON.parse(localStorage.getItem(storageKey(userEmail)) || '[]')
+      setHistory(current)
+    } catch (_) { return }
 
-  const setActual = (id, winner) => {
-    const updated = history.map(r => r.id === id ? { ...r, actual_winner: winner } : r)
+    // Auto-settle unsettled predictions from the last 14 days
+    if (settlingRef.current) return
+    settlingRef.current = true
+    const unsettled = current.filter(r => !r.actual_winner)
+    if (unsettled.length === 0) return
+
+    unsettled.forEach(async (r) => {
+      try {
+        const res = await getMatchResult(r.player_a, r.player_b, r.date)
+        if (res.data.found && res.data.winner) {
+          current = current.map(x =>
+            x.id === r.id ? { ...x, actual_winner: res.data.winner } : x
+          )
+          setHistory([...current])
+          localStorage.setItem(storageKey(userEmail), JSON.stringify(current))
+        }
+      } catch (_) {}
+    })
+  }, [userEmail])
+
+  const save = (updated) => {
     setHistory(updated)
-    localStorage.setItem('atp_predictions', JSON.stringify(updated))
-    setEditing(null)
+    localStorage.setItem(storageKey(userEmail), JSON.stringify(updated))
   }
+
+  const deleteOne = (id) => save(history.filter(r => r.id !== id))
 
   const clearHistory = () => {
     if (window.confirm('Clear all prediction history?')) {
       setHistory([])
-      localStorage.removeItem('atp_predictions')
+      localStorage.removeItem(storageKey(userEmail))
     }
+  }
+
+  const openPrediction = (r) => {
+    if (!r.prediction) return
+    sessionStorage.setItem('h2h_state', JSON.stringify({
+      playerA: r.player_a, playerB: r.player_b,
+      surface: r.surface,  bestOf: r.best_of,
+      tournament: r.tournament || '', round: r.round || '',
+      prediction: r.prediction, statsA: r.statsA, statsB: r.statsB,
+    }))
+    navigate('/h2h')
   }
 
   if (history.length === 0) return null
 
-  const scored = history.filter(r => r.actual_winner)
-  const correct = scored.filter(r => r.actual_winner === r.predicted_winner).length
+  const scored   = history.filter(r => r.actual_winner)
+  const correct  = scored.filter(r => r.actual_winner === r.predicted_winner).length
   const accuracy = scored.length > 0 ? Math.round((correct / scored.length) * 100) : null
+  const visible  = showAll ? history : history.slice(0, 5)
 
   return (
     <div className="bg-white rounded-2xl shadow p-6 space-y-4 text-left">
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-gray-800">Prediction History</h2>
+        <h2 className="font-semibold text-gray-800">Saved Predictions</h2>
         <button onClick={clearHistory} className="text-xs text-gray-400 hover:text-red-500">
-          Clear
+          Clear all
         </button>
       </div>
 
-      {/* Accuracy stats */}
+      {/* Summary stats */}
       <div className="flex gap-4 flex-wrap">
         <div className="bg-blue-50 rounded-xl px-4 py-3 text-center">
           <p className="text-2xl font-bold text-blue-700">{history.length}</p>
-          <p className="text-xs text-blue-500">Total predictions</p>
+          <p className="text-xs text-blue-500">Total</p>
         </div>
         <div className="bg-green-50 rounded-xl px-4 py-3 text-center">
           <p className="text-2xl font-bold text-green-700">{scored.length}</p>
-          <p className="text-xs text-green-500">Results recorded</p>
+          <p className="text-xs text-green-500">Recorded</p>
         </div>
         {accuracy !== null && (
           <div className="bg-purple-50 rounded-xl px-4 py-3 text-center">
             <p className="text-2xl font-bold text-purple-700">{accuracy}%</p>
-            <p className="text-xs text-purple-500">AI accuracy</p>
+            <p className="text-xs text-purple-500">Accuracy</p>
           </div>
         )}
       </div>
 
-      {/* Recent predictions */}
-      <div className="space-y-2">
-        {history.slice(0, 5).map(r => (
-          <div key={r.id} className="flex items-center gap-3 text-sm py-2 border-b last:border-0">
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-800 truncate">
-                {r.predicted_winner}
-                <span className="text-gray-400 font-normal"> won vs </span>
-                {r.player_a === r.predicted_winner ? r.player_b : r.player_a}
-              </p>
-              <p className="text-xs text-gray-400">{r.surface} · {r.date}</p>
-            </div>
+      {/* Prediction rows */}
+      <div className="space-y-1">
+        {visible.map(r => (
+          <div key={r.id} className="group rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
+            {/* Clickable area → restore prediction */}
+            <button
+              onClick={() => openPrediction(r)}
+              disabled={!r.prediction}
+              className="w-full text-left px-4 py-3 disabled:cursor-default"
+            >
+              <div className="flex items-start gap-3">
+                <div className="flex-1 min-w-0">
+                  {/* Winner line */}
+                  <p className="font-medium text-gray-800 text-sm truncate">
+                    <span className="text-green-600">{r.predicted_winner}</span>
+                    <span className="text-gray-400 font-normal"> def. </span>
+                    {r.player_a === r.predicted_winner ? r.player_b : r.player_a}
+                  </p>
+                  {/* Score + meta */}
+                  <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                    {r.predicted_score && (
+                      <span className="text-xs font-mono text-gray-600">{r.predicted_score}</span>
+                    )}
+                    <span className="text-xs text-gray-400">{r.surface}</span>
+                    {r.best_of && (
+                      <span className="text-xs text-gray-400">Bo{r.best_of}</span>
+                    )}
+                    {r.tournament && (
+                      <span className="text-xs text-gray-400 truncate max-w-[140px]">{r.tournament}</span>
+                    )}
+                    {r.round && (
+                      <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{r.round}</span>
+                    )}
+                    <span className="text-xs text-gray-300">{r.date}</span>
+                  </div>
+                </div>
 
-            {r.actual_winner ? (
-              // Show result
-              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
-                r.actual_winner === r.predicted_winner
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-red-100 text-red-700'
-              }`}>
-                {r.actual_winner === r.predicted_winner ? '✓ Correct' : '✗ Wrong'}
-              </span>
-            ) : editing === r.id ? (
-              // Enter actual winner
-              <div className="flex gap-1 flex-shrink-0">
-                {[r.player_a, r.player_b].map(p => (
-                  <button
-                    key={p}
-                    onClick={() => setActual(r.id, p)}
-                    className="text-xs bg-gray-800 text-white px-2 py-0.5 rounded-full truncate max-w-[80px]"
-                  >
-                    {p.split(' ').slice(-1)[0]}
-                  </button>
-                ))}
-                <button onClick={() => setEditing(null)} className="text-xs text-gray-400">✕</button>
+                {/* Result badge */}
+                {r.actual_winner && (
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
+                    r.actual_winner === r.predicted_winner
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700'
+                  }`}>
+                    {r.actual_winner === r.predicted_winner ? '✓' : '✗'}
+                  </span>
+                )}
               </div>
-            ) : (
+            </button>
+
+            {/* Action row */}
+            <div className="flex items-center gap-3 px-4 pb-2 -mt-1">
+              {!r.actual_winner && (
+                <span className="text-xs text-gray-400 italic">Checking result…</span>
+              )}
               <button
-                onClick={() => setEditing(r.id)}
-                className="text-xs text-blue-500 hover:underline flex-shrink-0"
+                onClick={() => deleteOne(r.id)}
+                className="text-xs text-gray-300 hover:text-red-400 ml-auto transition-colors"
               >
-                Record result
+                Delete
               </button>
-            )}
+            </div>
           </div>
         ))}
       </div>
 
+      {history.length > 5 && (
+        <button
+          onClick={() => setShowAll(v => !v)}
+          className="text-xs text-blue-500 hover:underline w-full text-center"
+        >
+          {showAll ? 'Show less' : `Show all ${history.length} predictions`}
+        </button>
+      )}
+
       {accuracy === null && scored.length === 0 && (
         <p className="text-xs text-gray-400">
-          Click "Record result" on any prediction to track AI accuracy.
+          Results are looked up automatically · Click any row to see full breakdown
         </p>
       )}
     </div>
@@ -118,6 +186,7 @@ function AccuracyTracker() {
 
 // ── Home page ───────────────────────────────────────────────────────────────
 export default function Home() {
+  const { user } = useAuth()
   return (
     <div className="space-y-10 py-8">
 
@@ -140,7 +209,7 @@ export default function Home() {
                      text-left w-60 shadow-lg transition-all hover:scale-105 hover:shadow-xl"
         >
           <div className="text-4xl mb-3">📅</div>
-          <h2 className="text-xl font-bold">Today's Matches</h2>
+          <h2 className="text-xl font-bold">Match Center</h2>
           <p className="text-emerald-100 text-sm mt-2 leading-snug">
             Live ATP schedule — click any match to instantly run an AI prediction.
           </p>
@@ -173,8 +242,8 @@ export default function Home() {
         </Link>
       </div>
 
-      {/* Accuracy tracker — only shows once predictions have been made */}
-      <AccuracyTracker />
+      {/* Accuracy tracker — only shows when logged in and predictions have been made */}
+      {user && <AccuracyTracker userEmail={user.email} />}
 
       <p className="text-sm text-gray-400 text-center">
         2000–2026 ATP match data · RAG pipeline · Claude AI · Betting odds analysis

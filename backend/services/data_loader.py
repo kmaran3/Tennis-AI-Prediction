@@ -1,5 +1,11 @@
+import unicodedata
 import pandas as pd
 from config import DATA_PATH
+
+
+def _norm(s: str) -> str:
+    """Lowercase and strip diacritics so 'Báez' matches 'Baez'."""
+    return unicodedata.normalize('NFD', s.lower()).encode('ascii', 'ignore').decode('ascii')
 
 # Module-level cache — CSV is loaded once at startup and reused for all requests
 _df = None
@@ -67,49 +73,58 @@ def get_all_player_names() -> list[str]:
     return sorted(names)
 
 
-def resolve_player_name(query: str) -> str:
+def find_player_names(query: str) -> list[str]:
     """
-    Map any player name format to the exact name used in the dataset.
+    Return ALL dataset names that could refer to the same player as `query`.
 
-    Handles:
-      - Exact matches: "Federer R."  → "Federer R."
-      - Full names:    "Roger Federer" → "Federer R."
-      - Compound last names: "Roberto Bautista Agut" → "Bautista Agut R."
-      - Already-abbreviated: "Hurkacz H." → "Hurkacz H."
-    Returns the original query if no match is found.
+    Matches on last name then keeps every candidate whose initials are all
+    present in the given full name — so both "Etcheverry T." and
+    "Etcheverry T. M." are returned for "Tomas Martin Etcheverry", ensuring
+    no match data is lost due to inconsistent abbreviation.
+
+    Examples:
+      "Tomas Martin Etcheverry" → ["Etcheverry T.", "Etcheverry T. M."]
+      "Novak Djokovic"          → ["Djokovic N."]
+      "Roberto Bautista Agut"   → ["Bautista Agut R."]
+      "Hurkacz H."              → ["Hurkacz H."]
     """
     all_names = get_all_player_names()
 
     # 1. Exact match
     if query in all_names:
-        return query
+        return [query]
 
-    # 2. Case-insensitive exact match
-    q_lower = query.strip().lower()
+    # 2. Case-insensitive + accent-insensitive exact match
+    q_norm = _norm(query.strip())
     for name in all_names:
-        if name.lower() == q_lower:
-            return name
+        if _norm(name) == q_norm:
+            return [name]
 
-    # 3. Try progressively shorter last-name prefixes (handles compound surnames)
-    #    "Roberto Bautista Agut" → try "Bautista Agut", then "Agut"
     parts = query.strip().split()
+    given_initials = {p[0].upper() for p in parts}
+
+    # 3. Try progressively shorter last-name suffixes (handles compound surnames)
     for start in range(1, len(parts)):
         last_part = ' '.join(parts[start:])
-        candidates = [n for n in all_names if n.lower().startswith(last_part.lower() + ' ')
-                      or n.lower() == last_part.lower()]
-        if len(candidates) == 1:
-            return candidates[0]
-        # Multiple candidates — try to break the tie using the first initial
-        if len(candidates) > 1 and parts:
-            initial = parts[0][0].upper()
-            refined = [c for c in candidates if c.split()[-1].rstrip('.').upper() == initial]
-            if len(refined) == 1:
-                return refined[0]
+        last_part_norm = _norm(last_part)
+        candidates = [n for n in all_names
+                      if _norm(n).startswith(last_part_norm + ' ')
+                      or _norm(n) == last_part_norm]
+        if not candidates:
+            continue
+        # Keep candidates whose every initial is found in the full name's initials
+        surname_tokens = len(last_part.split())
+        filtered = [c for c in candidates
+                    if {tok.rstrip('.') for tok in c.split()[surname_tokens:]}.issubset(given_initials)]
+        return filtered if filtered else candidates
 
-    # 4. Substring match on last name token only (e.g. "Hurkacz" → "Hurkacz H.")
-    last_token = parts[-1].rstrip('.').lower() if parts else ''
-    candidates = [n for n in all_names if n.lower().split()[0].rstrip('.') == last_token]
-    if len(candidates) == 1:
-        return candidates[0]
+    # 4. Fallback: last token matches start of any dataset name
+    last_token = _norm(parts[-1].rstrip('.')) if parts else ''
+    candidates = [n for n in all_names
+                  if _norm(n.split()[0]).rstrip('.') == last_token]
+    return candidates if candidates else [query]
 
-    return query  # fallback: return as-is
+
+def resolve_player_name(query: str) -> str:
+    """Return a single dataset name (first result of find_player_names)."""
+    return find_player_names(query)[0]
