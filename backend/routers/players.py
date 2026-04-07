@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Query
-from services.data_loader import get_all_player_names
+from services.data_loader import get_all_player_names, resolve_player_name
 from services.stats_engine import get_player_stats
 
 router = APIRouter()
@@ -22,8 +22,9 @@ def player_stats(player_name: str, surface: str = None):
     """
     Return aggregated stats for one player.
     Optionally filter by surface (Hard, Clay, Grass).
+    Accepts full names (e.g. "Hubert Hurkacz") or dataset names ("Hurkacz H.").
     """
-    return get_player_stats(player_name, surface)
+    return get_player_stats(resolve_player_name(player_name), surface)
 
 
 @router.get("/{player_name}/recent-form")
@@ -32,6 +33,7 @@ def recent_form(player_name: str, n: int = 8):
     import pandas as pd
     from services.data_loader import load_data
 
+    player_name = resolve_player_name(player_name)
     df = load_data()
     mask = (df['Player_1'] == player_name) | (df['Player_2'] == player_name)
     matches = df[mask].sort_values('Date', ascending=False).head(n)
