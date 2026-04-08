@@ -33,13 +33,17 @@ app.include_router(saved_predictions.router, prefix="/api/saved-predictions", ta
 
 @app.on_event("startup")
 async def startup():
-    """Runs once when the server starts. Loads data, then indexes in background."""
+    """Runs once when the server starts. Loads data, optionally indexes RAG in background."""
     import threading
     load_data()
-    # Run indexing in a background thread so the server starts immediately
-    # and Railway's health check passes without waiting 20+ minutes.
-    thread = threading.Thread(target=index_all_matches, daemon=True)
-    thread.start()
+    # RAG indexing takes 6+ hours on CPU. Skip it in production by setting
+    # SKIP_RAG_INDEXING=true. Predictions still work — the LLM just uses
+    # statistical context instead of retrieved match history.
+    if os.getenv("SKIP_RAG_INDEXING", "").lower() != "true":
+        thread = threading.Thread(target=index_all_matches, daemon=True)
+        thread.start()
+    else:
+        print("[RAG] Skipping indexing (SKIP_RAG_INDEXING=true)")
 
 
 @app.get("/api/health")
