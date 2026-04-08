@@ -11,7 +11,7 @@ from config import JWT_SECRET
 
 router = APIRouter()
 
-USERS_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "users.json")
+USERS_FILE = os.getenv("USERS_FILE", os.path.join(os.path.dirname(__file__), "..", "data", "users.json"))
 ALGORITHM  = "HS256"
 TOKEN_DAYS = 30
 

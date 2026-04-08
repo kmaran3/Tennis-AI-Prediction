@@ -143,24 +143,16 @@ def _winner_from_score(match: dict) -> str | None:
 def get_match_result(player_a: str, player_b: str, after_date: str = None):
     """
     Look up the result of a specific match on Sofascore.
-    Searches up to 14 days starting from the day AFTER after_date so we never
-    accidentally pick up a match that finished before the prediction was made.
-    Matches by exact last name (case-insensitive).
+    Searches up to 14 days starting from after_date (the prediction date).
+    Uses exact last-name matching to avoid false positives.
     Returns {winner, score, found}.
     """
     try:
-        prediction_date = date.fromisoformat(after_date) if after_date else date.today() - timedelta(days=1)
+        start = date.fromisoformat(after_date) if after_date else date.today() - timedelta(days=7)
     except ValueError:
-        prediction_date = date.today() - timedelta(days=1)
+        start = date.today() - timedelta(days=7)
 
-    # Start from the day after the prediction was made so we don't match
-    # matches that already finished before the user made their prediction.
-    start = prediction_date + timedelta(days=1)
-
-    # Don't search beyond today — future dates have no results yet.
     today = date.today()
-    if start > today:
-        return {'winner': None, 'score': None, 'found': False}
 
     def last(name: str) -> str:
         parts = name.strip().split()

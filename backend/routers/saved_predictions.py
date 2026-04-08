@@ -10,7 +10,7 @@ from routers.auth import _decode_token
 
 router = APIRouter()
 
-PREDICTIONS_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "predictions.json")
+PREDICTIONS_FILE = os.getenv("PREDICTIONS_FILE", os.path.join(os.path.dirname(__file__), "..", "data", "predictions.json"))
 
 
 # ---------------------------------------------------------------------------
