@@ -102,30 +102,46 @@ def get_player_stats(player_name: str, surface: str = None) -> dict:
 
 
 def get_recent_form(player_name: str, n: int = 10) -> list[dict]:
-    """Return the last N matches for a player, most recent first, for LLM context."""
+    """Return the last N matches for a player, most recent first, for LLM context.
+    Prepends live Sofascore results so the prediction sees current-tournament form."""
+    from routers.matches import fetch_live_player_matches
+
+    # Live matches (current tournament) come first
+    try:
+        live = fetch_live_player_matches(player_name, days_back=14)
+    except Exception:
+        live = []
+
     df = load_data()
     names = find_player_names(player_name)
     mask = df['Player_1'].isin(names) | df['Player_2'].isin(names)
-    matches = df[mask].sort_values('Date', ascending=False).head(n)
-    form = []
-    for _, row in matches.iterrows():
+    csv_matches = df[mask].sort_values('Date', ascending=False)
+
+    live_dates = {m['date'] for m in live}
+    if live_dates:
+        csv_matches = csv_matches[~csv_matches['Date'].dt.strftime('%Y-%m-%d').isin(live_dates)]
+
+    csv_form = []
+    for _, row in csv_matches.iterrows():
         player_is_p1 = row['Player_1'] in names
         won = row['Winner'] in names
         opponent = row['Player_2'] if player_is_p1 else row['Player_1']
         opp_rank = row['Rank_2'] if player_is_p1 else row['Rank_1']
         series = str(row.get('Series', '')) if pd.notna(row.get('Series')) else ''
-        form.append({
-            'date':         str(row['Date'])[:10],
-            'tournament':   str(row['Tournament']),
-            'series':       series,
-            'surface':      str(row['Surface']),
-            'round':        str(row['Round']) if pd.notna(row['Round']) else '',
-            'opponent':     opponent,
-            'opp_rank':     int(opp_rank) if pd.notna(opp_rank) else None,
-            'won':          won,
-            'score':        str(row['Score']) if pd.notna(row['Score']) else '',
+        csv_form.append({
+            'date':       str(row['Date'])[:10],
+            'tournament': str(row['Tournament']),
+            'series':     series,
+            'surface':    str(row['Surface']),
+            'round':      str(row['Round']) if pd.notna(row['Round']) else '',
+            'opponent':   opponent,
+            'opp_rank':   int(opp_rank) if pd.notna(opp_rank) else None,
+            'won':        won,
+            'score':      str(row['Score']) if pd.notna(row['Score']) else '',
+            'live':       False,
         })
-    return form
+
+    return (live + csv_form)[:n]
 
 
 def get_h2h(player_a: str, player_b: str, surface: str = None) -> dict:

@@ -8,10 +8,9 @@ export default function Navbar() {
   const { user, logout } = useAuth()
 
   const links = [
-    { to: '/',           label: 'Home' },
-    { to: '/today',      label: 'Match Center' },
-    { to: '/h2h',        label: 'Head-to-Head' },
-    { to: '/tournament', label: 'Tournament' },
+    { to: '/',      label: 'Home' },
+    { to: '/today', label: 'Match Center' },
+    { to: '/h2h',   label: 'Head-to-Head' },
   ]
 
   const linkClass = (to) =>

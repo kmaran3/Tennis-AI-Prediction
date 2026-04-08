@@ -35,30 +35,39 @@ def head_to_head(a: str = Query(...), b: str = Query(...), surface: str = None):
 
 @router.get("/{player_name}/recent-form")
 def recent_form(player_name: str, n: int = 8):
-    """Return the last N matches for a player, most recent first."""
+    """Return the last N matches for a player, most recent first.
+    Prepends live Sofascore results from the past 14 days before CSV history."""
     import pandas as pd
     from services.data_loader import load_data
+    from routers.matches import fetch_live_player_matches
+
+    # Live matches first (current tournament etc.)
+    live = fetch_live_player_matches(player_name, days_back=14)
 
     names = find_player_names(player_name)
     df = load_data()
     mask = df['Player_1'].isin(names) | df['Player_2'].isin(names)
-    matches = df[mask].sort_values('Date', ascending=False).head(n)
+    csv_matches = df[mask].sort_values('Date', ascending=False)
 
-    if matches.empty:
-        return {'player': player_name, 'form': []}
+    # Exclude CSV rows that overlap with live dates to avoid duplicates
+    live_dates = {m['date'] for m in live}
+    if live_dates:
+        csv_matches = csv_matches[~csv_matches['Date'].dt.strftime('%Y-%m-%d').isin(live_dates)]
 
-    form = []
-    for _, row in matches.iterrows():
+    csv_form = []
+    for _, row in csv_matches.iterrows():
         won = row['Winner'] in names
         opponent = row['Player_2'] if row['Player_1'] in names else row['Player_1']
-        form.append({
+        csv_form.append({
             'date':       str(row['Date'])[:10],
             'tournament': str(row['Tournament']),
             'surface':    str(row['Surface']),
             'opponent':   opponent,
             'won':        bool(won),
-            'score':      str(row['Score'])  if pd.notna(row['Score'])  else '',
-            'round':      str(row['Round'])  if pd.notna(row['Round'])  else '',
+            'score':      str(row['Score']) if pd.notna(row['Score']) else '',
+            'round':      str(row['Round']) if pd.notna(row['Round']) else '',
+            'live':       False,
         })
 
+    form = (live + csv_form)[:n]
     return {'player': player_name, 'form': form}

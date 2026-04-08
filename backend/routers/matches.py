@@ -187,6 +187,51 @@ def get_match_result(player_a: str, player_b: str, after_date: str = None):
     return {'winner': None, 'score': None, 'found': False}
 
 
+def fetch_live_player_matches(player_name: str, days_back: int = 14) -> list[dict]:
+    """
+    Fetch completed Sofascore matches for a player over the past N days.
+    Used to prepend live/current-tournament results to the historical CSV form.
+    Matches by last name to handle Sofascore full-name vs CSV abbreviated format.
+    Returns list sorted most-recent first, empty list on any error.
+    """
+    today = date.today()
+    last_name = player_name.strip().split()[-1].lower().rstrip('.')
+
+    dates = [today - timedelta(days=i) for i in range(days_back)]
+    try:
+        with ThreadPoolExecutor(max_workers=min(days_back, 7)) as executor:
+            days_data = list(executor.map(_fetch_day_matches, [(d, today) for d in dates]))
+    except Exception:
+        return []
+
+    results = []
+    for day_data in days_data:
+        day_date = day_data['date']
+        for m in day_data.get('matches', []):
+            if m['status_type'] != 'finished':
+                continue
+            la = m['player_a'].strip().split()[-1].lower()
+            lb = m['player_b'].strip().split()[-1].lower()
+            if last_name == la:
+                won = _winner_from_score(m) == m['player_a']
+                results.append({
+                    'date': day_date, 'tournament': m['tournament'],
+                    'surface': m['surface'], 'round': m['round'],
+                    'opponent': m['player_b'], 'won': won,
+                    'score': m['score'] or '', 'live': True,
+                })
+            elif last_name == lb:
+                won = _winner_from_score(m) == m['player_b']
+                results.append({
+                    'date': day_date, 'tournament': m['tournament'],
+                    'surface': m['surface'], 'round': m['round'],
+                    'opponent': m['player_a'], 'won': won,
+                    'score': m['score'] or '', 'live': True,
+                })
+
+    return sorted(results, key=lambda x: x['date'], reverse=True)
+
+
 @router.get("/today")
 def get_todays_matches():
     """Legacy single-day endpoint — returns today's matches."""
