@@ -1,6 +1,8 @@
+import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from rate_limiter import limiter
@@ -49,3 +51,13 @@ def health():
 async def global_exception_handler(request: Request, exc: Exception):
     """Catch-all error handler — returns JSON instead of crashing."""
     return JSONResponse(status_code=500, content={"detail": str(exc)})
+
+
+# Serve the built React app — only active when the dist folder exists (i.e. in production)
+_static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.isdir(_static_dir):
+    app.mount("/assets", StaticFiles(directory=os.path.join(_static_dir, "assets")), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        return FileResponse(os.path.join(_static_dir, "index.html"))

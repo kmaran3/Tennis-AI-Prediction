@@ -2,8 +2,10 @@ import axios from 'axios'
 
 // axios.create makes a reusable HTTP client with a shared base URL.
 // VITE_API_URL is read from .env.local — defaults to local backend.
+// In production the frontend is served by FastAPI itself, so the API is on the same origin.
+// VITE_API_URL overrides this for local dev (points to localhost:8000).
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_API_URL || '',
 })
 
 // Search for players whose names match the query string
