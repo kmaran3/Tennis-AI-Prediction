@@ -2,10 +2,11 @@
 set -e
 
 # Install Python deps
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 
-# Build the React frontend and copy it into backend/static
-cd ../frontend
+# Build the React frontend and copy into backend/static
+cd frontend
 npm install
 npm run build
-cp -r dist ../backend/static
+mkdir -p ../backend/static
+cp -r dist/. ../backend/static/
