@@ -9,23 +9,11 @@ import WinRateChart       from '../components/WinRateChart'
 import SurfaceRadar       from '../components/SurfaceRadar'
 import RecentForm         from '../components/RecentForm'
 import { PredictionSkeleton, CardSkeleton } from '../components/Skeleton'
-import { predictH2H, getPlayerStats, getRecentForm, getH2HRecord } from '../api/client'
+import { predictH2H, getPlayerStats, getRecentForm, getH2HRecord, getSavedPredictions, postSavedPrediction } from '../api/client'
 
-const storageKey = (email) => `atp_predictions_${email}`
-
-// Save a prediction to localStorage for the accuracy tracker on Home
-function savePrediction(record, email) {
+// Compute accuracy stats from a history array to feed back into the AI prompt
+function buildAccuracyContext(history) {
   try {
-    const key = storageKey(email)
-    const prev = JSON.parse(localStorage.getItem(key) || '[]')
-    localStorage.setItem(key, JSON.stringify([record, ...prev].slice(0, 100)))
-  } catch (_) {}
-}
-
-// Compute accuracy stats from localStorage to feed back into the AI prompt
-function buildAccuracyContext(email) {
-  try {
-    const history = JSON.parse(localStorage.getItem(storageKey(email)) || '[]')
     const scored = history.filter(r => r.actual_winner)
     if (scored.length < 3) return null
     const correct = scored.filter(r => r.actual_winner === r.predicted_winner).length
@@ -51,27 +39,39 @@ function buildAccuracyContext(email) {
   } catch (_) { return null }
 }
 
-// Always read persisted state — URL params override names/surface but never clear the prediction
-function loadSaved() {
-  try { return JSON.parse(sessionStorage.getItem('h2h_state') || '{}') || {} } catch (_) { return {} }
+// Read return state from sessionStorage (pure read, no side effects — safe for StrictMode).
+// This key is only written when clicking a player profile link from the prediction result.
+function readReturnState() {
+  try {
+    const raw = sessionStorage.getItem('h2h_return')
+    if (!raw) return {}
+    const s = JSON.parse(raw)
+    return s?.prediction ? s : {}
+  } catch (_) { return {} }
 }
 
 export default function HeadToHead() {
   const [searchParams] = useSearchParams()
-  const savedState = loadSaved()
+
+  // Lazy initializer reads sessionStorage once per mount. It's pure (no removal)
+  // so StrictMode's double-invoke produces the same result both times.
+  const [_init] = useState(readReturnState)
+
+  // Clear the return state after mount so direct /h2h navigation stays blank.
+  useEffect(() => { sessionStorage.removeItem('h2h_return') }, [])
 
   // URL params (from Today page) take priority over saved names/surface
-  const [playerA,    setPlayerA]    = useState(searchParams.get('a')          || savedState.playerA    || '')
-  const [playerB,    setPlayerB]    = useState(searchParams.get('b')          || savedState.playerB    || '')
-  const [surface,    setSurface]    = useState(searchParams.get('surface')    || savedState.surface    || 'Hard')
-  const [bestOf,     setBestOf]     = useState(Number(searchParams.get('best_of')) || savedState.bestOf || 3)
-  const [tournament, setTournament] = useState(searchParams.get('tournament') || savedState.tournament || '')
-  const [round,      setRound]      = useState(searchParams.get('round')      || savedState.round      || '')
+  const [playerA,    setPlayerA]    = useState(searchParams.get('a')          || _init.playerA    || '')
+  const [playerB,    setPlayerB]    = useState(searchParams.get('b')          || _init.playerB    || '')
+  const [surface,    setSurface]    = useState(searchParams.get('surface')    || _init.surface    || 'Hard')
+  const [bestOf,     setBestOf]     = useState(Number(searchParams.get('best_of')) || _init.bestOf || 3)
+  const [tournament, setTournament] = useState(searchParams.get('tournament') || _init.tournament || '')
+  const [round,      setRound]      = useState(searchParams.get('round')      || _init.round      || '')
 
-  // Prediction/stats always restored from sessionStorage (independent of how we navigated here)
-  const [prediction, setPrediction] = useState(savedState.prediction || null)
-  const [statsA,     setStatsA]     = useState(savedState.statsA || null)
-  const [statsB,     setStatsB]     = useState(savedState.statsB || null)
+  // Prediction/stats — only restored when coming back from a player profile
+  const [prediction, setPrediction] = useState(_init.prediction || null)
+  const [statsA,     setStatsA]     = useState(_init.statsA || null)
+  const [statsB,     setStatsB]     = useState(_init.statsB || null)
   const [formA,      setFormA]      = useState([])
   const [formB,      setFormB]      = useState([])
   const [h2hRecord,  setH2hRecord]  = useState(null)
@@ -79,14 +79,37 @@ export default function HeadToHead() {
   const [loading,    setLoading]    = useState(false)
   const [error,      setError]      = useState('')
   const [saved,      setSaved]      = useState(false)
+  const [history,    setHistory]    = useState([])
   const { user } = useAuth()
 
-  // Persist state whenever it changes so navigating to player profile and back restores everything
+  // Fetch saved predictions for accuracy context, and check if restored prediction was already saved
   useEffect(() => {
-    sessionStorage.setItem('h2h_state', JSON.stringify({
-      playerA, playerB, surface, bestOf, tournament, round, prediction, statsA, statsB,
-    }))
-  }, [playerA, playerB, surface, bestOf, tournament, round, prediction, statsA, statsB])
+    if (!user) return
+    getSavedPredictions().then(r => {
+      setHistory(r.data)
+      // If we restored a prediction from the profile-back navigation, mark it saved
+      // if a matching entry already exists in history
+      if (_init.prediction) {
+        const match = r.data.some(h =>
+          ((h.player_a === _init.playerA && h.player_b === _init.playerB) ||
+           (h.player_a === _init.playerB && h.player_b === _init.playerA)) &&
+          h.surface === _init.surface
+        )
+        if (match) setSaved(true)
+      }
+    }).catch(() => {})
+  }, [user])
+
+  // Called when the user clicks a player profile link while a prediction is visible.
+  // Saves current state so it can be restored when they navigate back.
+  const saveStateForProfile = () => {
+    if (!prediction) return
+    try {
+      sessionStorage.setItem('h2h_return', JSON.stringify({
+        playerA, playerB, surface, bestOf, tournament, round, prediction, statsA, statsB,
+      }))
+    } catch (_) {}
+  }
 
   // Fetch recent form whenever a player is selected
   useEffect(() => {
@@ -117,7 +140,7 @@ export default function HeadToHead() {
 
     try {
       const [predRes, statsARes, statsBRes] = await Promise.all([
-        predictH2H({ player_a: playerA, player_b: playerB, surface, best_of: bestOf, accuracy_context: buildAccuracyContext(user?.email) }),
+        predictH2H({ player_a: playerA, player_b: playerB, surface, best_of: bestOf, accuracy_context: buildAccuracyContext(history) }),
         getPlayerStats(playerA, surface),
         getPlayerStats(playerB, surface),
       ])
@@ -125,7 +148,13 @@ export default function HeadToHead() {
       setPrediction(predRes.data)
       setStatsA(statsARes.data)
       setStatsB(statsBRes.data)
-      setSaved(false)
+      // Mark as already saved if this matchup+surface exists in history
+      const alreadySaved = history.some(h =>
+        ((h.player_a === playerA && h.player_b === playerB) ||
+         (h.player_a === playerB && h.player_b === playerA)) &&
+        h.surface === surface
+      )
+      setSaved(alreadySaved)
     } catch (e) {
       setError('Prediction failed. Check the backend is running and player names are valid.')
       console.error(e)
@@ -134,9 +163,9 @@ export default function HeadToHead() {
     }
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!prediction || saved) return
-    savePrediction({
+    const record = {
       id: Date.now(),
       date: new Date().toISOString().slice(0, 10),
       player_a: playerA,
@@ -152,25 +181,13 @@ export default function HeadToHead() {
       prediction,
       statsA,
       statsB,
-    })
-    savePrediction({
-      id: Date.now(),
-      date: new Date().toISOString().slice(0, 10),
-      player_a: playerA,
-      player_b: playerB,
-      surface,
-      best_of: bestOf,
-      tournament,
-      round,
-      predicted_winner: prediction.predicted_winner,
-      predicted_score:  prediction.predicted_score,
-      win_probability:  prediction.win_probability,
-      actual_winner: null,
-      prediction,
-      statsA,
-      statsB,
-    }, user?.email)
-    setSaved(true)
+    }
+    try {
+      await postSavedPrediction(record)
+      setSaved(true)
+    } catch (e) {
+      console.error('Failed to save prediction', e)
+    }
   }
 
   return (
@@ -183,7 +200,7 @@ export default function HeadToHead() {
           <div>
             <PlayerSearch label="Player A" onSelect={setPlayerA} placeholder="Search player A..." initialValue={playerA} />
             {playerA && (
-              <Link to={`/players?name=${encodeURIComponent(playerA)}`} className="text-xs text-blue-500 hover:underline mt-1 inline-block">
+              <Link to={`/players?name=${encodeURIComponent(playerA)}`} onClick={saveStateForProfile} className="text-xs text-blue-500 hover:underline mt-1 inline-block">
                 View {playerA}'s profile →
               </Link>
             )}
@@ -191,7 +208,7 @@ export default function HeadToHead() {
           <div>
             <PlayerSearch label="Player B" onSelect={setPlayerB} placeholder="Search player B..." initialValue={playerB} />
             {playerB && (
-              <Link to={`/players?name=${encodeURIComponent(playerB)}`} className="text-xs text-blue-500 hover:underline mt-1 inline-block">
+              <Link to={`/players?name=${encodeURIComponent(playerB)}`} onClick={saveStateForProfile} className="text-xs text-blue-500 hover:underline mt-1 inline-block">
                 View {playerB}'s profile →
               </Link>
             )}
@@ -319,6 +336,7 @@ export default function HeadToHead() {
             bestOf={bestOf}
             onSave={handleSave}
             saved={saved}
+            onProfileClick={saveStateForProfile}
           />
           <div className="space-y-6">
             <OddsComparison

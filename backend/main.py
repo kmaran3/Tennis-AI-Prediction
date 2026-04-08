@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from rate_limiter import limiter
-from routers import players, predict, tournament, matches, auth
+from routers import players, predict, tournament, matches, auth, saved_predictions
 from services.data_loader import load_data
 from services.rag_pipeline import index_all_matches
 
@@ -25,7 +25,8 @@ app.include_router(auth.router,       prefix="/api/auth",       tags=["Auth"])
 app.include_router(players.router,    prefix="/api/players",    tags=["Players"])
 app.include_router(predict.router,    prefix="/api/predict",    tags=["Predictions"])
 app.include_router(tournament.router, prefix="/api/tournament", tags=["Tournament"])
-app.include_router(matches.router,    prefix="/api/matches",    tags=["Matches"])
+app.include_router(matches.router,          prefix="/api/matches",           tags=["Matches"])
+app.include_router(saved_predictions.router, prefix="/api/saved-predictions", tags=["Saved Predictions"])
 
 
 @app.on_event("startup")

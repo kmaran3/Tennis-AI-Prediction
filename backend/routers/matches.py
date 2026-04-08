@@ -143,14 +143,24 @@ def _winner_from_score(match: dict) -> str | None:
 def get_match_result(player_a: str, player_b: str, after_date: str = None):
     """
     Look up the result of a specific match on Sofascore.
-    Searches up to 10 days starting from after_date.
-    Matches by last name (case-insensitive) so full names work against dataset names.
+    Searches up to 14 days starting from the day AFTER after_date so we never
+    accidentally pick up a match that finished before the prediction was made.
+    Matches by exact last name (case-insensitive).
     Returns {winner, score, found}.
     """
     try:
-        start = date.fromisoformat(after_date) if after_date else date.today() - timedelta(days=7)
+        prediction_date = date.fromisoformat(after_date) if after_date else date.today() - timedelta(days=1)
     except ValueError:
-        start = date.today() - timedelta(days=7)
+        prediction_date = date.today() - timedelta(days=1)
+
+    # Start from the day after the prediction was made so we don't match
+    # matches that already finished before the user made their prediction.
+    start = prediction_date + timedelta(days=1)
+
+    # Don't search beyond today — future dates have no results yet.
+    today = date.today()
+    if start > today:
+        return {'winner': None, 'score': None, 'found': False}
 
     def last(name: str) -> str:
         parts = name.strip().split()
@@ -158,26 +168,29 @@ def get_match_result(player_a: str, player_b: str, after_date: str = None):
 
     la, lb = last(player_a), last(player_b)
 
-    for i in range(10):
-        day_result = _fetch_day_matches((start + timedelta(days=i), start))
+    for i in range(14):
+        check_date = start + timedelta(days=i)
+        if check_date > today:
+            break
+        day_result = _fetch_day_matches((check_date, check_date))
         for m in day_result.get('matches', []):
             if m['status_type'] != 'finished':
                 continue
             ma, mb = last(m['player_a']), last(m['player_b'])
-            matched = (
-                (la in ma or ma in la) and (lb in mb or mb in lb)
-            ) or (
-                (lb in ma or ma in lb) and (la in mb or mb in la)
-            )
-            if matched:
-                winner_name = _winner_from_score(m)
-                # Map back to the requested player names
-                if winner_name == m['player_a']:
-                    # figure out which of the two requested players is home
-                    winner = player_a if (la in ma or ma in la) else player_b
-                else:
-                    winner = player_b if (lb in mb or mb in lb) else player_a
-                return {'winner': winner, 'score': m['score'], 'found': True}
+            # Exact last-name match only — avoids false positives from substring matches
+            forward = (la == ma and lb == mb)
+            reverse = (la == mb and lb == ma)
+            if not (forward or reverse):
+                continue
+            winner_name = _winner_from_score(m)
+            if winner_name is None:
+                continue
+            # Map winner back to the originally requested player names
+            if forward:
+                winner = player_a if winner_name == m['player_a'] else player_b
+            else:
+                winner = player_b if winner_name == m['player_a'] else player_a
+            return {'winner': winner, 'score': m['score'], 'found': True}
 
     return {'winner': None, 'score': None, 'found': False}
 

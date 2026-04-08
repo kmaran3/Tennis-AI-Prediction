@@ -1,0 +1,991 @@
+{
+  "krishnamaran12@gmail.com": [
+    {
+      "id": 1775623836233,
+      "date": "2026-04-08",
+      "player_a": "Lorenzo Musetti",
+      "player_b": "Valentin Vacherot",
+      "surface": "Clay",
+      "best_of": 3,
+      "tournament": "Monte Carlo, Monaco",
+      "round": "Round of 32",
+      "predicted_winner": "Lorenzo Musetti",
+      "predicted_score": "6-2 6-3",
+      "win_probability": 0.93,
+      "actual_winner": null,
+      "prediction": {
+        "predicted_winner": "Lorenzo Musetti",
+        "win_probability": 0.93,
+        "confidence": "high",
+        "key_factors": [
+          "Massive ranking gap: Musetti ranked 7 vs Vacherot ranked 255, representing an overwhelming class difference",
+          "Musetti's elite clay court record (68% win rate on clay, 102 matches) vs Vacherot's catastrophic clay record (14% win rate, 7 matches)",
+          "Musetti's recent form includes high-quality wins over Rublev (R16), Fritz (top-10), and Rune/Medvedev on clay at Roland Garros/Rome 2025, demonstrating top-level capability"
+        ],
+        "narrative": "This is about as lopsided a matchup as you can find on the ATP Tour. Musetti, ranked 7th in the world, is an elite clay court specialist with a 68% win rate on the surface across 102 matches, including recent high-profile wins over Medvedev and Rune on clay in 2025. Vacherot, ranked 255, has a shocking 14% clay win rate (1-6) and all his recent competitive matches have been on hard courts where he showed some ability beating Borges and reaching a QF in Acapulco. The 248-ranking-point gap is enormous, and Musetti's trajectory \u2014 peak/rising at 23 years old, top-10 world ranking \u2014 contrasts sharply with Vacherot's career profile as a journeyman. Barring injury or extreme circumstance, this should be a comfortable straight-sets win for Musetti.",
+        "predicted_score": "6-2 6-3",
+        "upset_potential": "low",
+        "market_implied_prob_winner": null,
+        "ai_vs_market_diff": null,
+        "player_a_stats": {
+          "player_name": "Musetti L.",
+          "matches_played": 102,
+          "wins": 69,
+          "losses": 33,
+          "win_rate": 0.676,
+          "surface_win_rates": {
+            "Hard": {
+              "matches": 154,
+              "wins": 81,
+              "win_rate": 0.526
+            },
+            "Clay": {
+              "matches": 102,
+              "wins": 69,
+              "win_rate": 0.676
+            },
+            "Grass": {
+              "matches": 27,
+              "wins": 17,
+              "win_rate": 0.63
+            }
+          },
+          "tier_win_rates": {
+            "Masters 1000": {
+              "matches": 38,
+              "wins": 26,
+              "win_rate": 0.684
+            },
+            "ATP250": {
+              "matches": 38,
+              "wins": 25,
+              "win_rate": 0.658
+            },
+            "ATP500": {
+              "matches": 10,
+              "wins": 5,
+              "win_rate": 0.5
+            },
+            "Grand Slam": {
+              "matches": 16,
+              "wins": 13,
+              "win_rate": 0.812
+            }
+          },
+          "round_win_rates": {
+            "1st Round": {
+              "matches": 24,
+              "wins": 19,
+              "win_rate": 0.792
+            },
+            "2nd Round": {
+              "matches": 34,
+              "wins": 25,
+              "win_rate": 0.735
+            },
+            "3rd Round": {
+              "matches": 14,
+              "wins": 9,
+              "win_rate": 0.643
+            },
+            "Quarterfinals": {
+              "matches": 14,
+              "wins": 9,
+              "win_rate": 0.643
+            },
+            "Semifinals": {
+              "matches": 8,
+              "wins": 3,
+              "win_rate": 0.375
+            },
+            "The Final": {
+              "matches": 3,
+              "wins": 1,
+              "win_rate": 0.333
+            },
+            "4th Round": {
+              "matches": 5,
+              "wins": 3,
+              "win_rate": 0.6
+            }
+          },
+          "upset_wins": 30,
+          "upset_losses": 12,
+          "avg_rank": 46.1,
+          "current_rank": 7
+        },
+        "player_b_stats": {
+          "player_name": "Vacherot V.",
+          "matches_played": 7,
+          "wins": 1,
+          "losses": 6,
+          "win_rate": 0.143,
+          "surface_win_rates": {
+            "Hard": {
+              "matches": 23,
+              "wins": 15,
+              "win_rate": 0.652
+            },
+            "Clay": {
+              "matches": 7,
+              "wins": 1,
+              "win_rate": 0.143
+            },
+            "Grass": null
+          },
+          "tier_win_rates": {
+            "Masters 1000": {
+              "matches": 4,
+              "wins": 1,
+              "win_rate": 0.25
+            },
+            "ATP250": {
+              "matches": 2,
+              "wins": 0,
+              "win_rate": 0
+            },
+            "Grand Slam": {
+              "matches": 1,
+              "wins": 0,
+              "win_rate": 0
+            }
+          },
+          "round_win_rates": {
+            "1st Round": {
+              "matches": 6,
+              "wins": 1,
+              "win_rate": 0.167
+            },
+            "2nd Round": {
+              "matches": 1,
+              "wins": 0,
+              "win_rate": 0
+            }
+          },
+          "upset_wins": 1,
+          "upset_losses": 0,
+          "avg_rank": 216.6,
+          "current_rank": 255
+        },
+        "h2h_record": {
+          "matches": 0,
+          "player_a_wins": 0,
+          "player_b_wins": 0,
+          "player_a_win_rate": 0,
+          "matches_detail": []
+        }
+      },
+      "statsA": {
+        "player_name": "Musetti L.",
+        "matches_played": 102,
+        "wins": 69,
+        "losses": 33,
+        "win_rate": 0.676,
+        "surface_win_rates": {
+          "Hard": {
+            "matches": 154,
+            "wins": 81,
+            "win_rate": 0.526
+          },
+          "Clay": {
+            "matches": 102,
+            "wins": 69,
+            "win_rate": 0.676
+          },
+          "Grass": {
+            "matches": 27,
+            "wins": 17,
+            "win_rate": 0.63
+          }
+        },
+        "tier_win_rates": {
+          "Masters 1000": {
+            "matches": 38,
+            "wins": 26,
+            "win_rate": 0.684
+          },
+          "ATP250": {
+            "matches": 38,
+            "wins": 25,
+            "win_rate": 0.658
+          },
+          "ATP500": {
+            "matches": 10,
+            "wins": 5,
+            "win_rate": 0.5
+          },
+          "Grand Slam": {
+            "matches": 16,
+            "wins": 13,
+            "win_rate": 0.812
+          }
+        },
+        "round_win_rates": {
+          "1st Round": {
+            "matches": 24,
+            "wins": 19,
+            "win_rate": 0.792
+          },
+          "2nd Round": {
+            "matches": 34,
+            "wins": 25,
+            "win_rate": 0.735
+          },
+          "3rd Round": {
+            "matches": 14,
+            "wins": 9,
+            "win_rate": 0.643
+          },
+          "Quarterfinals": {
+            "matches": 14,
+            "wins": 9,
+            "win_rate": 0.643
+          },
+          "Semifinals": {
+            "matches": 8,
+            "wins": 3,
+            "win_rate": 0.375
+          },
+          "The Final": {
+            "matches": 3,
+            "wins": 1,
+            "win_rate": 0.333
+          },
+          "4th Round": {
+            "matches": 5,
+            "wins": 3,
+            "win_rate": 0.6
+          }
+        },
+        "upset_wins": 30,
+        "upset_losses": 12,
+        "avg_rank": 46.1,
+        "current_rank": 7
+      },
+      "statsB": {
+        "player_name": "Vacherot V.",
+        "matches_played": 7,
+        "wins": 1,
+        "losses": 6,
+        "win_rate": 0.143,
+        "surface_win_rates": {
+          "Hard": {
+            "matches": 23,
+            "wins": 15,
+            "win_rate": 0.652
+          },
+          "Clay": {
+            "matches": 7,
+            "wins": 1,
+            "win_rate": 0.143
+          },
+          "Grass": null
+        },
+        "tier_win_rates": {
+          "Masters 1000": {
+            "matches": 4,
+            "wins": 1,
+            "win_rate": 0.25
+          },
+          "ATP250": {
+            "matches": 2,
+            "wins": 0,
+            "win_rate": 0
+          },
+          "Grand Slam": {
+            "matches": 1,
+            "wins": 0,
+            "win_rate": 0
+          }
+        },
+        "round_win_rates": {
+          "1st Round": {
+            "matches": 6,
+            "wins": 1,
+            "win_rate": 0.167
+          },
+          "2nd Round": {
+            "matches": 1,
+            "wins": 0,
+            "win_rate": 0
+          }
+        },
+        "upset_wins": 1,
+        "upset_losses": 0,
+        "avg_rank": 216.6,
+        "current_rank": 255
+      }
+    },
+    {
+      "id": 1775623817235,
+      "date": "2026-04-08",
+      "player_a": "Tomas Martin Etcheverry",
+      "player_b": "Terence Atmane",
+      "surface": "Clay",
+      "best_of": 3,
+      "tournament": "Monte Carlo, Monaco",
+      "round": "Round of 32",
+      "predicted_winner": "Tomas Martin Etcheverry",
+      "predicted_score": "6-3 6-2",
+      "win_probability": 0.82,
+      "actual_winner": null,
+      "prediction": {
+        "predicted_winner": "Tomas Martin Etcheverry",
+        "win_probability": 0.82,
+        "confidence": "high",
+        "key_factors": [
+          "Etcheverry is a dedicated clay specialist with a 54% win rate on the surface across 93 matches, while Atmane has only a 29% clay win rate across just 7 matches",
+          "Significant ranking gap (51 vs 136) strongly favors Etcheverry, who just won the Rio Open title on clay in February 2026 \u2014 a high-quality result beating Tabilo in the final",
+          "Atmane's recent form has been largely on hard courts with mixed results (5-5 in last 10), and he has virtually no clay court experience or track record at this level"
+        ],
+        "narrative": "Etcheverry arrives in exceptional form on clay, having just claimed the Rio Open ATP500 title \u2014 a meaningful result that included wins over ranked opponents and a final victory over Tabilo. His clay court pedigree is well-established with 93 matches of experience and a solid 54% win rate on the surface. Atmane, by contrast, has only 7 career clay matches and a 29% win rate on the surface, with all his recent matches played on hard courts. The ranking differential of 85 spots combined with Etcheverry's surface dominance and momentum makes this a highly favorable matchup for the Argentine, with upset potential being minimal.",
+        "predicted_score": "6-3 6-2",
+        "upset_potential": "low",
+        "market_implied_prob_winner": null,
+        "ai_vs_market_diff": null,
+        "player_a_stats": {
+          "player_name": "Etcheverry T.",
+          "matches_played": 93,
+          "wins": 50,
+          "losses": 43,
+          "win_rate": 0.538,
+          "surface_win_rates": {
+            "Hard": {
+              "matches": 83,
+              "wins": 36,
+              "win_rate": 0.434
+            },
+            "Clay": {
+              "matches": 93,
+              "wins": 50,
+              "win_rate": 0.538
+            },
+            "Grass": {
+              "matches": 14,
+              "wins": 4,
+              "win_rate": 0.286
+            }
+          },
+          "tier_win_rates": {
+            "ATP250": {
+              "matches": 52,
+              "wins": 27,
+              "win_rate": 0.519
+            },
+            "Grand Slam": {
+              "matches": 8,
+              "wins": 4,
+              "win_rate": 0.5
+            },
+            "ATP500": {
+              "matches": 19,
+              "wins": 13,
+              "win_rate": 0.684
+            },
+            "Masters 1000": {
+              "matches": 14,
+              "wins": 6,
+              "win_rate": 0.429
+            }
+          },
+          "round_win_rates": {
+            "1st Round": {
+              "matches": 36,
+              "wins": 19,
+              "win_rate": 0.528
+            },
+            "2nd Round": {
+              "matches": 26,
+              "wins": 15,
+              "win_rate": 0.577
+            },
+            "Quarterfinals": {
+              "matches": 13,
+              "wins": 8,
+              "win_rate": 0.615
+            },
+            "Semifinals": {
+              "matches": 9,
+              "wins": 4,
+              "win_rate": 0.444
+            },
+            "The Final": {
+              "matches": 4,
+              "wins": 1,
+              "win_rate": 0.25
+            },
+            "3rd Round": {
+              "matches": 4,
+              "wins": 2,
+              "win_rate": 0.5
+            },
+            "4th Round": {
+              "matches": 1,
+              "wins": 1,
+              "win_rate": 1
+            }
+          },
+          "upset_wins": 12,
+          "upset_losses": 18,
+          "avg_rank": 57.8,
+          "current_rank": 51
+        },
+        "player_b_stats": {
+          "player_name": "Atmane T.",
+          "matches_played": 7,
+          "wins": 2,
+          "losses": 5,
+          "win_rate": 0.286,
+          "surface_win_rates": {
+            "Hard": {
+              "matches": 30,
+              "wins": 11,
+              "win_rate": 0.367
+            },
+            "Clay": {
+              "matches": 7,
+              "wins": 2,
+              "win_rate": 0.286
+            },
+            "Grass": null
+          },
+          "tier_win_rates": {
+            "Masters 1000": {
+              "matches": 2,
+              "wins": 1,
+              "win_rate": 0.5
+            },
+            "Grand Slam": {
+              "matches": 2,
+              "wins": 0,
+              "win_rate": 0
+            },
+            "ATP250": {
+              "matches": 3,
+              "wins": 1,
+              "win_rate": 0.333
+            }
+          },
+          "round_win_rates": {
+            "1st Round": {
+              "matches": 5,
+              "wins": 2,
+              "win_rate": 0.4
+            },
+            "3rd Round": {
+              "matches": 1,
+              "wins": 0,
+              "win_rate": 0
+            },
+            "2nd Round": {
+              "matches": 1,
+              "wins": 0,
+              "win_rate": 0
+            }
+          },
+          "upset_wins": 2,
+          "upset_losses": 2,
+          "avg_rank": 130.7,
+          "current_rank": 136
+        },
+        "h2h_record": {
+          "matches": 0,
+          "player_a_wins": 0,
+          "player_b_wins": 0,
+          "player_a_win_rate": 0,
+          "matches_detail": []
+        }
+      },
+      "statsA": {
+        "player_name": "Etcheverry T.",
+        "matches_played": 93,
+        "wins": 50,
+        "losses": 43,
+        "win_rate": 0.538,
+        "surface_win_rates": {
+          "Hard": {
+            "matches": 83,
+            "wins": 36,
+            "win_rate": 0.434
+          },
+          "Clay": {
+            "matches": 93,
+            "wins": 50,
+            "win_rate": 0.538
+          },
+          "Grass": {
+            "matches": 14,
+            "wins": 4,
+            "win_rate": 0.286
+          }
+        },
+        "tier_win_rates": {
+          "ATP250": {
+            "matches": 52,
+            "wins": 27,
+            "win_rate": 0.519
+          },
+          "Grand Slam": {
+            "matches": 8,
+            "wins": 4,
+            "win_rate": 0.5
+          },
+          "ATP500": {
+            "matches": 19,
+            "wins": 13,
+            "win_rate": 0.684
+          },
+          "Masters 1000": {
+            "matches": 14,
+            "wins": 6,
+            "win_rate": 0.429
+          }
+        },
+        "round_win_rates": {
+          "1st Round": {
+            "matches": 36,
+            "wins": 19,
+            "win_rate": 0.528
+          },
+          "2nd Round": {
+            "matches": 26,
+            "wins": 15,
+            "win_rate": 0.577
+          },
+          "Quarterfinals": {
+            "matches": 13,
+            "wins": 8,
+            "win_rate": 0.615
+          },
+          "Semifinals": {
+            "matches": 9,
+            "wins": 4,
+            "win_rate": 0.444
+          },
+          "The Final": {
+            "matches": 4,
+            "wins": 1,
+            "win_rate": 0.25
+          },
+          "3rd Round": {
+            "matches": 4,
+            "wins": 2,
+            "win_rate": 0.5
+          },
+          "4th Round": {
+            "matches": 1,
+            "wins": 1,
+            "win_rate": 1
+          }
+        },
+        "upset_wins": 12,
+        "upset_losses": 18,
+        "avg_rank": 57.8,
+        "current_rank": 51
+      },
+      "statsB": {
+        "player_name": "Atmane T.",
+        "matches_played": 7,
+        "wins": 2,
+        "losses": 5,
+        "win_rate": 0.286,
+        "surface_win_rates": {
+          "Hard": {
+            "matches": 30,
+            "wins": 11,
+            "win_rate": 0.367
+          },
+          "Clay": {
+            "matches": 7,
+            "wins": 2,
+            "win_rate": 0.286
+          },
+          "Grass": null
+        },
+        "tier_win_rates": {
+          "Masters 1000": {
+            "matches": 2,
+            "wins": 1,
+            "win_rate": 0.5
+          },
+          "Grand Slam": {
+            "matches": 2,
+            "wins": 0,
+            "win_rate": 0
+          },
+          "ATP250": {
+            "matches": 3,
+            "wins": 1,
+            "win_rate": 0.333
+          }
+        },
+        "round_win_rates": {
+          "1st Round": {
+            "matches": 5,
+            "wins": 2,
+            "win_rate": 0.4
+          },
+          "3rd Round": {
+            "matches": 1,
+            "wins": 0,
+            "win_rate": 0
+          },
+          "2nd Round": {
+            "matches": 1,
+            "wins": 0,
+            "win_rate": 0
+          }
+        },
+        "upset_wins": 2,
+        "upset_losses": 2,
+        "avg_rank": 130.7,
+        "current_rank": 136
+      }
+    },
+    {
+      "id": 1775623455354,
+      "date": "2026-04-08",
+      "player_a": "Joao Fonseca",
+      "player_b": "Arthur Rinderknech",
+      "surface": "Clay",
+      "best_of": 3,
+      "tournament": "Monte Carlo, Monaco",
+      "round": "Round of 32",
+      "predicted_winner": "Joao Fonseca",
+      "predicted_score": "6-4 6-3",
+      "win_probability": 0.62,
+      "actual_winner": null,
+      "prediction": {
+        "predicted_winner": "Joao Fonseca",
+        "win_probability": 0.62,
+        "confidence": "medium",
+        "key_factors": [
+          "Fonseca holds a significant ranking advantage (33 vs 65) and is on a clear upward trajectory as a young rising star",
+          "Fonseca's recent form at Indian Wells was impressive \u2014 beating Khachanov (ranked 16) and Paul (ranked 24) before a close loss to world No. 2 Sinner, showing elite-level competition capability",
+          "Rinderknech is in poor form with 7 losses in last 10 matches, including early exits to lower-ranked opponents, suggesting a lack of consistency",
+          "Clay surface slightly favors Fonseca's game style; Rinderknech's clay win rate (47%) is below his already modest overall win rate"
+        ],
+        "narrative": "Joao Fonseca enters this match as the clear favorite based on ranking and trajectory. At just 18-19 years old, Fonseca is one of the most exciting rising talents on tour, having demonstrated the ability to beat top-20 opponents in consecutive rounds at Indian Wells 2026. Rinderknech, despite having more tour experience, is going through a difficult stretch \u2014 his only notable recent win came against Jack Draper in Dubai, and he has struggled to maintain consistency in best-of-3 clay formats based on historical data. Fonseca's upset win rate (9 upset wins) and recent quality of competition give him the edge here, though Rinderknech's experience and big-serve game could make this competitive.",
+        "predicted_score": "6-4 6-3",
+        "upset_potential": "low",
+        "market_implied_prob_winner": null,
+        "ai_vs_market_diff": null,
+        "player_a_stats": {
+          "player_name": "Fonseca J.",
+          "matches_played": 26,
+          "wins": 14,
+          "losses": 12,
+          "win_rate": 0.538,
+          "surface_win_rates": {
+            "Hard": {
+              "matches": 23,
+              "wins": 13,
+              "win_rate": 0.565
+            },
+            "Clay": {
+              "matches": 26,
+              "wins": 14,
+              "win_rate": 0.538
+            },
+            "Grass": {
+              "matches": 7,
+              "wins": 3,
+              "win_rate": 0.429
+            }
+          },
+          "tier_win_rates": {
+            "ATP500": {
+              "matches": 7,
+              "wins": 3,
+              "win_rate": 0.429
+            },
+            "ATP250": {
+              "matches": 11,
+              "wins": 7,
+              "win_rate": 0.636
+            },
+            "Masters 1000": {
+              "matches": 5,
+              "wins": 2,
+              "win_rate": 0.4
+            },
+            "Grand Slam": {
+              "matches": 3,
+              "wins": 2,
+              "win_rate": 0.667
+            }
+          },
+          "round_win_rates": {
+            "1st Round": {
+              "matches": 12,
+              "wins": 7,
+              "win_rate": 0.583
+            },
+            "2nd Round": {
+              "matches": 8,
+              "wins": 4,
+              "win_rate": 0.5
+            },
+            "Quarterfinals": {
+              "matches": 3,
+              "wins": 1,
+              "win_rate": 0.333
+            },
+            "Semifinals": {
+              "matches": 1,
+              "wins": 1,
+              "win_rate": 1
+            },
+            "The Final": {
+              "matches": 1,
+              "wins": 1,
+              "win_rate": 1
+            },
+            "3rd Round": {
+              "matches": 1,
+              "wins": 0,
+              "win_rate": 0
+            }
+          },
+          "upset_wins": 9,
+          "upset_losses": 2,
+          "avg_rank": 223,
+          "current_rank": 33
+        },
+        "player_b_stats": {
+          "player_name": "Rinderknech A.",
+          "matches_played": 51,
+          "wins": 24,
+          "losses": 27,
+          "win_rate": 0.471,
+          "surface_win_rates": {
+            "Hard": {
+              "matches": 120,
+              "wins": 57,
+              "win_rate": 0.475
+            },
+            "Clay": {
+              "matches": 51,
+              "wins": 24,
+              "win_rate": 0.471
+            },
+            "Grass": {
+              "matches": 29,
+              "wins": 13,
+              "win_rate": 0.448
+            }
+          },
+          "tier_win_rates": {
+            "Grand Slam": {
+              "matches": 7,
+              "wins": 2,
+              "win_rate": 0.286
+            },
+            "ATP250": {
+              "matches": 35,
+              "wins": 20,
+              "win_rate": 0.571
+            },
+            "Masters 1000": {
+              "matches": 8,
+              "wins": 2,
+              "win_rate": 0.25
+            },
+            "ATP500": {
+              "matches": 1,
+              "wins": 0,
+              "win_rate": 0
+            }
+          },
+          "round_win_rates": {
+            "1st Round": {
+              "matches": 29,
+              "wins": 15,
+              "win_rate": 0.517
+            },
+            "2nd Round": {
+              "matches": 14,
+              "wins": 7,
+              "win_rate": 0.5
+            },
+            "Quarterfinals": {
+              "matches": 6,
+              "wins": 2,
+              "win_rate": 0.333
+            },
+            "Semifinals": {
+              "matches": 2,
+              "wins": 0,
+              "win_rate": 0
+            }
+          },
+          "upset_wins": 13,
+          "upset_losses": 9,
+          "avg_rank": 102.4,
+          "current_rank": 65
+        },
+        "h2h_record": {
+          "matches": 0,
+          "player_a_wins": 0,
+          "player_b_wins": 0,
+          "player_a_win_rate": 0,
+          "matches_detail": []
+        }
+      },
+      "statsA": {
+        "player_name": "Fonseca J.",
+        "matches_played": 26,
+        "wins": 14,
+        "losses": 12,
+        "win_rate": 0.538,
+        "surface_win_rates": {
+          "Hard": {
+            "matches": 23,
+            "wins": 13,
+            "win_rate": 0.565
+          },
+          "Clay": {
+            "matches": 26,
+            "wins": 14,
+            "win_rate": 0.538
+          },
+          "Grass": {
+            "matches": 7,
+            "wins": 3,
+            "win_rate": 0.429
+          }
+        },
+        "tier_win_rates": {
+          "ATP500": {
+            "matches": 7,
+            "wins": 3,
+            "win_rate": 0.429
+          },
+          "ATP250": {
+            "matches": 11,
+            "wins": 7,
+            "win_rate": 0.636
+          },
+          "Masters 1000": {
+            "matches": 5,
+            "wins": 2,
+            "win_rate": 0.4
+          },
+          "Grand Slam": {
+            "matches": 3,
+            "wins": 2,
+            "win_rate": 0.667
+          }
+        },
+        "round_win_rates": {
+          "1st Round": {
+            "matches": 12,
+            "wins": 7,
+            "win_rate": 0.583
+          },
+          "2nd Round": {
+            "matches": 8,
+            "wins": 4,
+            "win_rate": 0.5
+          },
+          "Quarterfinals": {
+            "matches": 3,
+            "wins": 1,
+            "win_rate": 0.333
+          },
+          "Semifinals": {
+            "matches": 1,
+            "wins": 1,
+            "win_rate": 1
+          },
+          "The Final": {
+            "matches": 1,
+            "wins": 1,
+            "win_rate": 1
+          },
+          "3rd Round": {
+            "matches": 1,
+            "wins": 0,
+            "win_rate": 0
+          }
+        },
+        "upset_wins": 9,
+        "upset_losses": 2,
+        "avg_rank": 223,
+        "current_rank": 33
+      },
+      "statsB": {
+        "player_name": "Rinderknech A.",
+        "matches_played": 51,
+        "wins": 24,
+        "losses": 27,
+        "win_rate": 0.471,
+        "surface_win_rates": {
+          "Hard": {
+            "matches": 120,
+            "wins": 57,
+            "win_rate": 0.475
+          },
+          "Clay": {
+            "matches": 51,
+            "wins": 24,
+            "win_rate": 0.471
+          },
+          "Grass": {
+            "matches": 29,
+            "wins": 13,
+            "win_rate": 0.448
+          }
+        },
+        "tier_win_rates": {
+          "Grand Slam": {
+            "matches": 7,
+            "wins": 2,
+            "win_rate": 0.286
+          },
+          "ATP250": {
+            "matches": 35,
+            "wins": 20,
+            "win_rate": 0.571
+          },
+          "Masters 1000": {
+            "matches": 8,
+            "wins": 2,
+            "win_rate": 0.25
+          },
+          "ATP500": {
+            "matches": 1,
+            "wins": 0,
+            "win_rate": 0
+          }
+        },
+        "round_win_rates": {
+          "1st Round": {
+            "matches": 29,
+            "wins": 15,
+            "win_rate": 0.517
+          },
+          "2nd Round": {
+            "matches": 14,
+            "wins": 7,
+            "win_rate": 0.5
+          },
+          "Quarterfinals": {
+            "matches": 6,
+            "wins": 2,
+            "win_rate": 0.333
+          },
+          "Semifinals": {
+            "matches": 2,
+            "wins": 0,
+            "win_rate": 0
+          }
+        },
+        "upset_wins": 13,
+        "upset_losses": 9,
+        "avg_rank": 102.4,
+        "current_rank": 65
+      }
+    }
+  ]
+}

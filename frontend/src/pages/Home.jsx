@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getMatchResult } from '../api/client'
+import { getMatchResult, getSavedPredictions, putSavedPrediction, deleteSavedPrediction, clearSavedPredictions } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 
-const storageKey = (email) => `atp_predictions_${email}`
-
 // ── Accuracy Tracker ────────────────────────────────────────────────────────
-function AccuracyTracker({ userEmail }) {
+function AccuracyTracker() {
   const [history, setHistory] = useState([])
   const [showAll, setShowAll] = useState(false)
   const navigate = useNavigate()
@@ -16,42 +14,46 @@ function AccuracyTracker({ userEmail }) {
   useEffect(() => {
     settlingRef.current = false
     let current
+
+    getSavedPredictions()
+      .then(res => {
+        current = res.data
+        setHistory(current)
+
+        // Auto-settle unsettled predictions
+        if (settlingRef.current) return
+        settlingRef.current = true
+        const unsettled = current.filter(r => !r.actual_winner)
+        if (unsettled.length === 0) return
+
+        unsettled.forEach(async (r) => {
+          try {
+            const res = await getMatchResult(r.player_a, r.player_b, r.date)
+            if (res.data.found && res.data.winner) {
+              await putSavedPrediction(r.id, { actual_winner: res.data.winner, actual_score: res.data.score || null })
+              setHistory(prev => prev.map(x =>
+                x.id === r.id ? { ...x, actual_winner: res.data.winner } : x
+              ))
+            }
+          } catch (_) {}
+        })
+      })
+      .catch(() => {})
+  }, [])
+
+  const deleteOne = async (id) => {
     try {
-      current = JSON.parse(localStorage.getItem(storageKey(userEmail)) || '[]')
-      setHistory(current)
-    } catch (_) { return }
-
-    // Auto-settle unsettled predictions from the last 14 days
-    if (settlingRef.current) return
-    settlingRef.current = true
-    const unsettled = current.filter(r => !r.actual_winner)
-    if (unsettled.length === 0) return
-
-    unsettled.forEach(async (r) => {
-      try {
-        const res = await getMatchResult(r.player_a, r.player_b, r.date)
-        if (res.data.found && res.data.winner) {
-          current = current.map(x =>
-            x.id === r.id ? { ...x, actual_winner: res.data.winner } : x
-          )
-          setHistory([...current])
-          localStorage.setItem(storageKey(userEmail), JSON.stringify(current))
-        }
-      } catch (_) {}
-    })
-  }, [userEmail])
-
-  const save = (updated) => {
-    setHistory(updated)
-    localStorage.setItem(storageKey(userEmail), JSON.stringify(updated))
+      await deleteSavedPrediction(id)
+      setHistory(prev => prev.filter(r => r.id !== id))
+    } catch (_) {}
   }
 
-  const deleteOne = (id) => save(history.filter(r => r.id !== id))
-
-  const clearHistory = () => {
+  const clearHistory = async () => {
     if (window.confirm('Clear all prediction history?')) {
-      setHistory([])
-      localStorage.removeItem(storageKey(userEmail))
+      try {
+        await clearSavedPredictions()
+        setHistory([])
+      } catch (_) {}
     }
   }
 
@@ -104,25 +106,37 @@ function AccuracyTracker({ userEmail }) {
       <div className="space-y-1">
         {visible.map(r => (
           <div key={r.id} className="group rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
-            {/* Clickable area → restore prediction */}
-            <button
-              onClick={() => openPrediction(r)}
-              disabled={!r.prediction}
-              className="w-full text-left px-4 py-3 disabled:cursor-default"
-            >
-              <div className="flex items-start gap-3">
-                <div className="flex-1 min-w-0">
-                  {/* Winner line */}
-                  <p className="font-medium text-gray-800 text-sm truncate">
-                    <span className="text-green-600">{r.predicted_winner}</span>
-                    <span className="text-gray-400 font-normal"> def. </span>
-                    {r.player_a === r.predicted_winner ? r.player_b : r.player_a}
-                  </p>
-                  {/* Score + meta */}
-                  <div className="flex items-center gap-2 flex-wrap mt-0.5">
+            {/* Top row: prediction info + result badge */}
+            <div className="flex items-start gap-3 px-4 pt-3 pb-1">
+              {/* Clickable text area → restore prediction */}
+              <button
+                onClick={() => openPrediction(r)}
+                disabled={!r.prediction}
+                className="flex-1 min-w-0 text-left disabled:cursor-default"
+              >
+                <p className="font-medium text-gray-800 text-sm truncate">
+                  <span className="text-green-600">{r.predicted_winner}</span>
+                  <span className="text-gray-400 font-normal"> def. </span>
+                  {r.player_a === r.predicted_winner ? r.player_b : r.player_a}
+                </p>
+                <div className="flex flex-col gap-0.5 mt-0.5">
+                  {/* Scores row */}
+                  <div className="flex items-center gap-3 flex-wrap">
                     {r.predicted_score && (
-                      <span className="text-xs font-mono text-gray-600">{r.predicted_score}</span>
+                      <span className="text-xs text-gray-500">
+                        <span className="text-gray-400">Predicted: </span>
+                        <span className="font-mono">{r.predicted_score}</span>
+                      </span>
                     )}
+                    {r.actual_score && (
+                      <span className="text-xs text-gray-500">
+                        <span className="text-gray-400">Actual: </span>
+                        <span className="font-mono font-medium">{r.actual_score}</span>
+                      </span>
+                    )}
+                  </div>
+                  {/* Meta row */}
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs text-gray-400">{r.surface}</span>
                     {r.best_of && (
                       <span className="text-xs text-gray-400">Bo{r.best_of}</span>
@@ -136,22 +150,22 @@ function AccuracyTracker({ userEmail }) {
                     <span className="text-xs text-gray-300">{r.date}</span>
                   </div>
                 </div>
+              </button>
 
-                {/* Result badge */}
-                {r.actual_winner && (
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${
-                    r.actual_winner === r.predicted_winner
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700'
-                  }`}>
-                    {r.actual_winner === r.predicted_winner ? '✓' : '✗'}
-                  </span>
-                )}
-              </div>
-            </button>
+              {/* Result badge — not a button, just a status indicator */}
+              {r.actual_winner && (
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 pointer-events-none ${
+                  r.actual_winner === r.predicted_winner
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-red-100 text-red-700'
+                }`}>
+                  {r.actual_winner === r.predicted_winner ? '✓' : '✗'}
+                </span>
+              )}
+            </div>
 
             {/* Action row */}
-            <div className="flex items-center gap-3 px-4 pb-2 -mt-1">
+            <div className="flex items-center gap-3 px-4 pb-2">
               {!r.actual_winner && (
                 <span className="text-xs text-gray-400 italic">Checking result…</span>
               )}
@@ -243,7 +257,7 @@ export default function Home() {
       </div>
 
       {/* Accuracy tracker — only shows when logged in and predictions have been made */}
-      {user && <AccuracyTracker userEmail={user.email} />}
+      {user && <AccuracyTracker />}
 
       <p className="text-sm text-gray-400 text-center">
         2000–2026 ATP match data · RAG pipeline · Claude AI · Betting odds analysis

@@ -70,3 +70,10 @@ api.interceptors.request.use(config => {
 export const register = (body) => api.post('/api/auth/register', body)
 export const login    = (body) => api.post('/api/auth/login', body)
 export const getMe    = ()     => api.get('/api/auth/me')
+
+// Saved predictions (persisted per account on the backend)
+export const getSavedPredictions  = ()         => api.get('/api/saved-predictions')
+export const postSavedPrediction  = (body)     => api.post('/api/saved-predictions', body)
+export const putSavedPrediction   = (id, body) => api.put(`/api/saved-predictions/${id}`, body)
+export const deleteSavedPrediction = (id)      => api.delete(`/api/saved-predictions/${id}`)
+export const clearSavedPredictions = ()        => api.delete('/api/saved-predictions')
