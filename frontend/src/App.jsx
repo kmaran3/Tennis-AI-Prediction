@@ -14,7 +14,7 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Navbar />
-        <main className="max-w-6xl mx-auto px-4 py-8">
+        <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
           <Routes>
             <Route path="/"       element={<Home />} />
             <Route path="/today"  element={<Today />} />

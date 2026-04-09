@@ -12,7 +12,7 @@
       "predicted_winner": "Lorenzo Musetti",
       "predicted_score": "6-2 6-3",
       "win_probability": 0.93,
-      "actual_winner": null,
+      "actual_winner": "Valentin Vacherot",
       "prediction": {
         "predicted_winner": "Lorenzo Musetti",
         "win_probability": 0.93,
@@ -314,7 +314,8 @@
         "upset_losses": 0,
         "avg_rank": 216.6,
         "current_rank": 255
-      }
+      },
+      "actual_score": "6-7, 5-7"
     },
     {
       "id": 1775623817235,

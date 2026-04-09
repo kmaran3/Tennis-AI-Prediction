@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import PlayerSearch       from '../components/PlayerSearch'
@@ -48,6 +48,52 @@ function readReturnState() {
     const s = JSON.parse(raw)
     return s?.prediction ? s : {}
   } catch (_) { return {} }
+}
+
+const PREDICT_STAGES = [
+  { at: 0,  msg: 'Loading player stats…' },
+  { at: 18, msg: 'Analysing head-to-head history…' },
+  { at: 38, msg: 'Retrieving match context…' },
+  { at: 58, msg: 'Running AI model…' },
+  { at: 78, msg: 'Generating prediction…' },
+  { at: 92, msg: 'Almost there…' },
+]
+
+function PredictProgress({ active }) {
+  const [pct, setPct] = useState(0)
+  const [stage, setStage] = useState(PREDICT_STAGES[0].msg)
+  const timerRef = useRef(null)
+
+  useEffect(() => {
+    if (!active) { setPct(0); setStage(PREDICT_STAGES[0].msg); return }
+    setPct(0)
+    const start = Date.now()
+    const DURATION = 22000 // ~22 s simulated fill to 97%
+    timerRef.current = setInterval(() => {
+      const elapsed = Date.now() - start
+      const raw = Math.min(97, (elapsed / DURATION) * 97)
+      setPct(raw)
+      const s = [...PREDICT_STAGES].reverse().find(s => raw >= s.at)
+      if (s) setStage(s.msg)
+    }, 80)
+    return () => clearInterval(timerRef.current)
+  }, [active])
+
+  if (!active) return null
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between text-xs text-gray-500">
+        <span>{stage}</span>
+        <span>{Math.round(pct)}%</span>
+      </div>
+      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all duration-100"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+    </div>
+  )
 }
 
 export default function HeadToHead() {
@@ -191,12 +237,12 @@ export default function HeadToHead() {
   }
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-3xl font-bold text-gray-900">Head-to-Head Predictor</h1>
+    <div className="space-y-5">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Head-to-Head Predictor</h1>
 
       {/* Input card */}
-      <div className="bg-white rounded-2xl shadow p-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="bg-white rounded-2xl shadow p-4 sm:p-6 space-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <PlayerSearch label="Player A" onSelect={setPlayerA} placeholder="Search player A..." initialValue={playerA} />
             {playerA && (
@@ -215,7 +261,7 @@ export default function HeadToHead() {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-8 items-start">
+        <div className="flex flex-wrap gap-6 items-start">
           <div>
             <p className="text-sm font-medium text-gray-700 mb-2">Surface</p>
             <SurfaceSelector value={surface} onChange={setSurface} />
@@ -233,7 +279,7 @@ export default function HeadToHead() {
                       : 'border-gray-300 text-gray-600 hover:border-gray-500'
                   }`}
                 >
-                  Best of {n}
+                  Bo{n}
                 </button>
               ))}
             </div>
@@ -243,28 +289,26 @@ export default function HeadToHead() {
         {/* H2H record strip */}
         {playerA && playerB && (
           <div className="rounded-xl border border-gray-200 overflow-hidden">
-            {/* Clickable header */}
             <button
               onClick={() => setH2hOpen(o => !o)}
-              className="w-full flex items-center gap-3 bg-gray-50 hover:bg-gray-100 transition-colors px-4 py-3"
+              className="w-full flex items-center gap-2 bg-gray-50 hover:bg-gray-100 transition-colors px-4 py-3"
             >
-              <span className="text-sm font-semibold text-gray-700 flex-1 text-right truncate">{playerA}</span>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <span className="text-xl font-bold text-gray-900">
+              <span className="text-xs sm:text-sm font-semibold text-gray-700 flex-1 text-right truncate min-w-0">{playerA}</span>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <span className="text-lg sm:text-xl font-bold text-gray-900">
                   {h2hRecord ? h2hRecord.player_a_wins : '–'}
                 </span>
                 <span className="text-xs text-gray-400 font-medium">H2H</span>
-                <span className="text-xl font-bold text-gray-900">
+                <span className="text-lg sm:text-xl font-bold text-gray-900">
                   {h2hRecord ? h2hRecord.player_b_wins : '–'}
                 </span>
               </div>
-              <span className="text-sm font-semibold text-gray-700 flex-1 truncate">{playerB}</span>
-              <span className="text-gray-400 text-xs ml-2 flex-shrink-0">{h2hOpen ? '▲' : '▼'}</span>
+              <span className="text-xs sm:text-sm font-semibold text-gray-700 flex-1 truncate min-w-0">{playerB}</span>
+              <span className="text-gray-400 text-xs ml-1 flex-shrink-0">{h2hOpen ? '▲' : '▼'}</span>
             </button>
 
-            {/* Expandable match list */}
             {h2hOpen && (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-100 max-h-64 overflow-y-auto">
                 {!h2hRecord || h2hRecord.matches === 0 ? (
                   <p className="text-sm text-gray-400 text-center py-4">No prior meetings in dataset</p>
                 ) : (
@@ -272,17 +316,16 @@ export default function HeadToHead() {
                     const winnerIsA = m.winner === playerA ||
                       m.winner.toLowerCase().includes(playerA.split(' ').slice(-1)[0].toLowerCase())
                     return (
-                      <div key={i} className="flex items-center gap-3 px-4 py-2.5 text-xs">
-                        <span className="text-gray-400 w-20 flex-shrink-0">{m.date}</span>
-                        <span className="flex-1 text-gray-700 truncate">{m.tournament}</span>
+                      <div key={i} className="flex items-center gap-2 px-3 py-2.5 text-xs">
+                        <span className="text-gray-400 flex-shrink-0 w-16">{m.date?.slice(0, 7)}</span>
+                        <span className="flex-1 text-gray-700 truncate min-w-0">{m.tournament}</span>
                         <span className={`flex-shrink-0 px-1.5 py-0.5 rounded font-medium ${
                           m.surface === 'Clay'  ? 'bg-orange-100 text-orange-700' :
                           m.surface === 'Grass' ? 'bg-green-100 text-green-700'  :
                                                   'bg-blue-100 text-blue-700'
-                        }`}>{m.surface}</span>
-                        <span className="text-gray-400 flex-shrink-0 w-16 text-center">{m.round}</span>
-                        <span className={`font-semibold flex-shrink-0 w-24 text-right ${winnerIsA ? 'text-blue-600' : 'text-orange-600'}`}>
-                          {m.winner.split(' ').slice(-1)[0]} {m.score}
+                        }`}>{m.surface[0]}</span>
+                        <span className={`font-semibold flex-shrink-0 ${winnerIsA ? 'text-blue-600' : 'text-orange-600'}`}>
+                          {m.winner.split(' ').slice(-1)[0]}
                         </span>
                       </div>
                     )
@@ -295,39 +338,31 @@ export default function HeadToHead() {
 
         {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
 
-        <button
-          onClick={handlePredict}
-          disabled={loading}
-          className="bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed
-                     text-white font-semibold px-8 py-3 rounded-xl transition-all shadow-sm
-                     w-full sm:w-auto"
-        >
-          {loading ? '⏳ Predicting...' : '🎾 Predict Match'}
-        </button>
+        <div className="space-y-3">
+          <PredictProgress active={loading} />
+          <button
+            onClick={handlePredict}
+            disabled={loading}
+            className="bg-green-500 hover:bg-green-600 active:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed
+                       text-white font-semibold px-8 py-3 rounded-xl transition-all shadow-sm
+                       w-full sm:w-auto"
+          >
+            {loading ? 'Predicting…' : '🎾 Predict Match'}
+          </button>
+        </div>
       </div>
 
       {/* Recent form — shown as soon as players are selected */}
       {(formA.length > 0 || formB.length > 0) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {formA.length > 0 && <RecentForm player={playerA} form={formA} />}
           {formB.length > 0 && <RecentForm player={playerB} form={formB} />}
         </div>
       )}
 
-      {/* Loading skeletons */}
-      {loading && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <PredictionSkeleton />
-          <div className="space-y-6">
-            <CardSkeleton lines={3} />
-            <CardSkeleton lines={4} />
-          </div>
-        </div>
-      )}
-
       {/* Results */}
       {!loading && prediction && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <PredictionCard
             prediction={prediction}
             playerA={playerA}
@@ -338,7 +373,7 @@ export default function HeadToHead() {
             saved={saved}
             onProfileClick={saveStateForProfile}
           />
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <OddsComparison
               playerName={prediction.predicted_winner}
               aiProb={prediction.win_probability}

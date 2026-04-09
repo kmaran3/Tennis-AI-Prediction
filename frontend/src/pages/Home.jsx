@@ -202,65 +202,62 @@ function AccuracyTracker() {
 export default function Home() {
   const { user } = useAuth()
   return (
-    <div className="space-y-10 py-8">
+    <div className="space-y-6 sm:space-y-10 py-2 sm:py-6">
 
       {/* Hero */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight">
+      <div className="text-center space-y-3">
+        <h1 className="text-3xl sm:text-5xl font-bold text-gray-900 leading-tight">
           🎾 ATP Match Predictor
         </h1>
-        <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-base sm:text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
           AI-powered tennis predictions backed by real ATP match data (2000–2026).
-          Compare AI win probabilities against historical betting market odds.
+          Win probabilities, head-to-head breakdowns, and full tournament simulations.
         </p>
       </div>
 
       {/* CTA cards */}
-      <div className="flex gap-4 justify-center flex-wrap">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Link
           to="/today"
-          className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl px-7 py-6
-                     text-left w-60 shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+          className="bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-2xl px-5 py-5 sm:px-7 sm:py-6
+                     text-left shadow-lg transition-all hover:shadow-xl active:scale-[0.98]"
         >
-          <div className="text-4xl mb-3">📅</div>
-          <h2 className="text-xl font-bold">Match Center</h2>
-          <p className="text-emerald-100 text-sm mt-2 leading-snug">
-            Live ATP schedule — click any match to instantly run an AI prediction.
+          <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">📅</div>
+          <h2 className="text-lg sm:text-xl font-bold">Match Center</h2>
+          <p className="text-emerald-100 text-sm mt-1.5 leading-snug">
+            Live ATP schedule — tap any match to instantly run an AI prediction.
           </p>
         </Link>
 
         <Link
           to="/h2h"
-          className="bg-green-500 hover:bg-green-600 text-white rounded-2xl px-7 py-6
-                     text-left w-60 shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+          className="bg-green-500 hover:bg-green-600 active:bg-green-700 text-white rounded-2xl px-5 py-5 sm:px-7 sm:py-6
+                     text-left shadow-lg transition-all hover:shadow-xl active:scale-[0.98]"
         >
-          <div className="text-4xl mb-3">⚔️</div>
-          <h2 className="text-xl font-bold">Head-to-Head</h2>
-          <p className="text-green-100 text-sm mt-2 leading-snug">
-            Pick two players and a surface. Get an AI prediction with key factors,
-            win probability, and betting market comparison.
+          <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">⚔️</div>
+          <h2 className="text-lg sm:text-xl font-bold">Head-to-Head</h2>
+          <p className="text-green-100 text-sm mt-1.5 leading-snug">
+            Pick two players and a surface. Get an AI prediction with win probability and key stats.
           </p>
         </Link>
 
         <Link
           to="/tournament"
-          className="bg-blue-500 hover:bg-blue-600 text-white rounded-2xl px-7 py-6
-                     text-left w-60 shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+          className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-2xl px-5 py-5 sm:px-7 sm:py-6
+                     text-left shadow-lg transition-all hover:shadow-xl active:scale-[0.98]"
         >
-          <div className="text-4xl mb-3">🏆</div>
-          <h2 className="text-xl font-bold">Tournament</h2>
-          <p className="text-blue-100 text-sm mt-2 leading-snug">
-            Upload a draw image or search by tournament name. Simulate the full bracket
-            round by round with AI predictions.
+          <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">🏆</div>
+          <h2 className="text-lg sm:text-xl font-bold">Tournament</h2>
+          <p className="text-blue-100 text-sm mt-1.5 leading-snug">
+            View the live draw and simulate remaining matches round by round with AI.
           </p>
         </Link>
       </div>
 
-      {/* Accuracy tracker — only shows when logged in and predictions have been made */}
       {user && <AccuracyTracker />}
 
       <p className="text-sm text-gray-400 text-center">
-        2000–2026 ATP match data · RAG pipeline · Claude AI · Betting odds analysis
+        2000–2026 ATP match data · RAG pipeline · Claude AI
       </p>
     </div>
   )

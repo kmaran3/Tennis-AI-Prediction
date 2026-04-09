@@ -77,26 +77,30 @@ export default function Navbar() {
 
       {/* Mobile dropdown */}
       {open && (
-        <div className="md:hidden border-t border-gray-800 px-4 py-3 flex flex-col gap-4">
+        <div className="md:hidden border-t border-gray-800 px-4 py-4 flex flex-col gap-1">
           {links.map(({ to, label }) => (
-            <Link key={to} to={to} onClick={() => setOpen(false)} className={linkClass(to)}>
+            <Link key={to} to={to} onClick={() => setOpen(false)}
+              className={`py-3 border-b border-gray-800/50 text-sm font-medium transition-colors ${
+                pathname === to ? 'text-green-400' : 'text-gray-300'
+              }`}>
               {label}
             </Link>
           ))}
 
           {/* Mobile auth */}
           {user ? (
-            <>
+            <div className="flex items-center justify-between pt-2">
               <span className="text-sm text-gray-300">Hi, <span className="text-white font-semibold">{user.username}</span></span>
               <button
                 onClick={() => { logout(); setOpen(false) }}
-                className="text-sm text-gray-400 hover:text-white text-left transition-colors"
+                className="text-xs text-gray-400 border border-gray-600 px-3 py-1.5 rounded-lg hover:text-white transition-colors"
               >
                 Sign out
               </button>
-            </>
+            </div>
           ) : (
-            <Link to="/login" onClick={() => setOpen(false)} className="text-sm text-gray-300 hover:text-green-400 transition-colors">
+            <Link to="/login" onClick={() => setOpen(false)}
+              className="py-3 text-sm text-gray-300 hover:text-green-400 transition-colors">
               Sign In
             </Link>
           )}

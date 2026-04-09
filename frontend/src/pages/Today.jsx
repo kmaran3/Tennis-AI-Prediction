@@ -147,75 +147,64 @@ export default function Today() {
     surface === 'Grass' ? 'bg-green-100 text-green-700'   :
                           'bg-blue-100 text-blue-700'
 
-  const MatchCard = ({ match, showTournament = false }) => {
+  const MatchCard = ({ match }) => {
     const winner = getWinner(match)
-    const aWon = winner === 'a'
     const bWon = winner === 'b'
+    const first  = bWon ? match.player_b : match.player_a
+    const second = bWon ? match.player_a : match.player_b
     return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4
-                    flex flex-col sm:flex-row sm:items-center gap-4">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          {(() => {
-            const first  = bWon ? match.player_b : match.player_a
-            const second = bWon ? match.player_a : match.player_b
-            const firstWon  = winner !== null
-            const secondWon = false
-            return <>
-              <p className={`font-semibold text-sm ${firstWon ? 'text-gray-900' : 'text-gray-900'}`}>
-                {first}
-                {firstWon && <span className="ml-1 text-green-500 text-xs font-bold">✓</span>}
-              </p>
-              <span className="text-gray-400 text-xs">{winner ? 'def.' : 'vs'}</span>
-              <p className={`font-semibold text-sm ${winner ? 'text-gray-400' : 'text-gray-900'}`}>
-                {second}
-              </p>
-            </>
-          })()}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3 flex items-center gap-3">
+        {/* Player names + meta */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-baseline gap-1.5 min-w-0">
+            <span className={`text-sm font-semibold truncate ${winner ? 'text-gray-900' : 'text-gray-800'}`}>
+              {first}
+              {winner !== null && <span className="ml-1 text-green-500 text-xs">✓</span>}
+            </span>
+            <span className="text-gray-400 text-xs flex-shrink-0">{winner ? 'def.' : 'vs'}</span>
+            <span className={`text-sm font-semibold truncate ${winner ? 'text-gray-400' : 'text-gray-800'}`}>
+              {second}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+            {match.start_timestamp && match.status_type === 'notstarted' && (
+              <span className="text-[10px] text-gray-400">
+                {new Date(match.start_timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            )}
+            {match.round && (
+              <span className="text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                {match.round}
+              </span>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-          {showTournament && match.tournament && (
-            <p className="text-xs text-gray-400 truncate">{match.tournament}</p>
-          )}
-          {match.start_timestamp && match.status_type === 'notstarted' && (
-            <span className="text-xs text-gray-400 flex-shrink-0">
-              {new Date(match.start_timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </span>
-          )}
-          {match.round && (
-            <span className="text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">
-              {match.round}
-            </span>
-          )}
-          {match.surface && (
-            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded flex-shrink-0 ${surfaceClass(match.surface)}`}>
-              {match.surface}
-            </span>
-          )}
-        </div>
+
+        {/* Score */}
+        {match.score && <ScoreDisplay match={match} winner={winner} />}
+
+        {/* Status */}
+        <StatusBadge status_type={match.status_type} status={match.status} />
+
+        {/* Predict button */}
+        {user ? (
+          <button
+            onClick={() => handlePredict(match)}
+            className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-xs font-semibold
+                       px-3 py-2 rounded-xl transition-all flex-shrink-0"
+          >
+            Predict
+          </button>
+        ) : (
+          <Link
+            to="/login"
+            className="text-xs text-gray-400 border border-gray-200 px-3 py-2 rounded-xl flex-shrink-0"
+          >
+            🔒
+          </Link>
+        )}
       </div>
-
-      {match.score && <ScoreDisplay match={match} winner={winner} />}
-      <StatusBadge status_type={match.status_type} status={match.status} />
-
-      {user ? (
-        <button
-          onClick={() => handlePredict(match)}
-          className="bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold
-                     px-4 py-2 rounded-xl transition-all flex-shrink-0"
-        >
-          Predict →
-        </button>
-      ) : (
-        <Link
-          to="/login"
-          className="text-xs text-gray-400 border border-gray-200 px-4 py-2 rounded-xl flex-shrink-0 flex items-center gap-1"
-        >
-          🔒 Predict
-        </Link>
-      )}
-    </div>
-  )
+    )
   }
 
   // Group matches by tournament, preserving status sort order within each group
@@ -255,9 +244,9 @@ export default function Today() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Match Center</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Match Center</h1>
         <p className="text-sm text-gray-400 mt-1">Next 7 days · ATP Tour</p>
       </div>
 
@@ -271,13 +260,13 @@ export default function Today() {
 
       {!loading && days.length > 0 && (
         <>
-          {/* Day tabs */}
-          <div className="flex gap-2 flex-wrap">
+          {/* Day tabs — scrollable row on mobile */}
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-3 sm:mx-0 px-3 sm:px-0 sm:flex-wrap scrollbar-none">
             {days.map((day, i) => (
               <button
                 key={day.date}
                 onClick={() => setSelectedDay(i)}
-                className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${
+                className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-all ${
                   selectedDay === i
                     ? 'bg-gray-900 text-white border-gray-900'
                     : 'border-gray-200 text-gray-600 hover:border-gray-400'
