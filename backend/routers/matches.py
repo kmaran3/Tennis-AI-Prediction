@@ -118,6 +118,24 @@ def _fetch_day_matches(args) -> dict:
         return {"date": date_str, "label": label, "matches": [], "error": str(e)}
 
 
+def _flip_score(score: str) -> str:
+    """Flip a 'H-A, H-A' score string to 'A-H, A-H'."""
+    parts = [s.strip() for s in score.split(',')]
+    flipped = []
+    for s in parts:
+        tb = re.search(r'\(([^)]+)\)', s)
+        clean = re.sub(r'\s*\([^)]+\)', '', s).strip()
+        nums = clean.split('-')
+        if len(nums) == 2:
+            fs = f"{nums[1]}-{nums[0]}"
+            if tb:
+                fs += f" ({tb.group(1)})"
+            flipped.append(fs)
+        else:
+            flipped.append(s)
+    return ', '.join(flipped)
+
+
 def _winner_from_score(match: dict) -> str | None:
     """Derive winner from a finished match dict using set scores."""
     score = match.get('score')
@@ -180,9 +198,12 @@ def get_match_result(player_a: str, player_b: str, after_date: str = None):
             # Map winner back to the originally requested player names
             if forward:
                 winner = player_a if winner_name == m['player_a'] else player_b
+                score = m['score']
             else:
                 winner = player_b if winner_name == m['player_a'] else player_a
-            return {'winner': winner, 'score': m['score'], 'found': True}
+                # Flip score so first number always corresponds to player_a from the request
+                score = _flip_score(m['score']) if m['score'] else None
+            return {'winner': winner, 'score': score, 'found': True}
 
     return {'winner': None, 'score': None, 'found': False}
 

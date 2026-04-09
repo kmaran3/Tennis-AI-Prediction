@@ -119,22 +119,55 @@ function AccuracyTracker() {
                   <span className="text-gray-400 font-normal"> def. </span>
                   {r.player_a === r.predicted_winner ? r.player_b : r.player_a}
                 </p>
-                <div className="flex flex-col gap-0.5 mt-0.5">
-                  {/* Scores row */}
-                  <div className="flex items-center gap-3 flex-wrap">
-                    {r.predicted_score && (
-                      <span className="text-xs text-gray-500">
-                        <span className="text-gray-400">Predicted: </span>
-                        <span className="font-mono">{r.predicted_score}</span>
-                      </span>
-                    )}
-                    {r.actual_score && (
-                      <span className="text-xs text-gray-500">
-                        <span className="text-gray-400">Actual: </span>
-                        <span className="font-mono font-medium">{r.actual_score}</span>
-                      </span>
-                    )}
-                  </div>
+                <div className="flex flex-col gap-1 mt-1">
+                  {/* Scorecards */}
+                  {(r.predicted_score || r.actual_score) && (
+                    <div className="flex gap-6 flex-wrap">
+                      {r.predicted_score && (() => {
+                        const winner = r.predicted_winner
+                        const loser  = r.player_a === winner ? r.player_b : r.player_a
+                        const sets   = r.predicted_score.split(/[\s,]+/).filter(s => s.includes('-'))
+                        return (
+                          <div>
+                            <p className="text-[10px] text-gray-400 mb-0.5">Predicted</p>
+                            <table className="text-xs font-mono border-separate" style={{ borderSpacing: '4px 0' }}>
+                              <tbody>
+                                <tr className="text-gray-700 font-semibold">
+                                  <td className="font-sans text-[10px] text-gray-500 pr-1 text-right whitespace-nowrap">{winner.split(' ').pop()}</td>
+                                  {sets.map((s, i) => <td key={i} className="text-center w-4">{s.split('-')[0]}</td>)}
+                                </tr>
+                                <tr className="text-gray-400">
+                                  <td className="font-sans text-[10px] pr-1 text-right whitespace-nowrap">{loser.split(' ').pop()}</td>
+                                  {sets.map((s, i) => <td key={i} className="text-center w-4">{s.split('-')[1]}</td>)}
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        )
+                      })()}
+                      {r.actual_score && r.actual_winner && (() => {
+                        const aIsWinner = r.player_a === r.actual_winner
+                        const sets = r.actual_score.split(/[\s,]+/).filter(s => s.includes('-'))
+                        return (
+                          <div>
+                            <p className="text-[10px] text-gray-400 mb-0.5">Actual</p>
+                            <table className="text-xs font-mono border-separate" style={{ borderSpacing: '4px 0' }}>
+                              <tbody>
+                                <tr className={aIsWinner ? 'text-gray-700 font-semibold' : 'text-gray-400'}>
+                                  <td className="font-sans text-[10px] text-gray-500 pr-1 text-right whitespace-nowrap">{r.player_a.split(' ').pop()}</td>
+                                  {sets.map((s, i) => <td key={i} className="text-center w-4">{s.split('-')[0]}</td>)}
+                                </tr>
+                                <tr className={!aIsWinner ? 'text-gray-700 font-semibold' : 'text-gray-400'}>
+                                  <td className="font-sans text-[10px] pr-1 text-right whitespace-nowrap">{r.player_b.split(' ').pop()}</td>
+                                  {sets.map((s, i) => <td key={i} className="text-center w-4">{s.split('-')[1]}</td>)}
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        )
+                      })()}
+                    </div>
+                  )}
                   {/* Meta row */}
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-xs text-gray-400">{r.surface}</span>
@@ -216,7 +249,7 @@ export default function Home() {
       </div>
 
       {/* CTA cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-w-xl mx-auto w-full">
         <Link
           to="/today"
           className="bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-2xl px-5 py-5 sm:px-7 sm:py-6
@@ -238,18 +271,6 @@ export default function Home() {
           <h2 className="text-lg sm:text-xl font-bold">Head-to-Head</h2>
           <p className="text-green-100 text-sm mt-1.5 leading-snug">
             Pick two players and a surface. Get an AI prediction with win probability and key stats.
-          </p>
-        </Link>
-
-        <Link
-          to="/tournament"
-          className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-2xl px-5 py-5 sm:px-7 sm:py-6
-                     text-left shadow-lg transition-all hover:shadow-xl active:scale-[0.98]"
-        >
-          <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">🏆</div>
-          <h2 className="text-lg sm:text-xl font-bold">Tournament</h2>
-          <p className="text-blue-100 text-sm mt-1.5 leading-snug">
-            View the live draw and simulate remaining matches round by round with AI.
           </p>
         </Link>
       </div>
