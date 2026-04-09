@@ -2,7 +2,8 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT"
+startCommand = "uvicorn main:app --host 0.0.0.0 --port $PORT"
+rootDirectory = "backend"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"
