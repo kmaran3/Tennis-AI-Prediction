@@ -115,7 +115,7 @@ function AccuracyTracker() {
                 className="flex-1 min-w-0 text-left disabled:cursor-default"
               >
                 <p className="font-medium text-gray-800 text-sm truncate">
-                  <span className="text-green-600">{r.predicted_winner}</span>
+                  <span className="text-indigo-600">{r.predicted_winner}</span>
                   <span className="text-gray-400 font-normal"> def. </span>
                   {r.player_a === r.predicted_winner ? r.player_b : r.player_a}
                 </p>
@@ -155,7 +155,7 @@ function AccuracyTracker() {
                         const sets = r.actual_score.split(/[\s,]+/).filter(s => s.includes('-'))
                         return (
                           <div>
-                            <p className="text-xs font-semibold text-emerald-600 mb-1 uppercase tracking-wide">Actual</p>
+                            <p className={`text-xs font-semibold mb-1 uppercase tracking-wide ${r.actual_winner === r.predicted_winner ? 'text-emerald-600' : 'text-red-500'}`}>Actual</p>
                             <table className="text-xs font-mono border-separate" style={{ borderSpacing: '4px 0' }}>
                               <tbody>
                                 <tr className="text-gray-800 font-bold">
