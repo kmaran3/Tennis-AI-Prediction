@@ -122,23 +122,23 @@ function AccuracyTracker() {
                 <div className="flex flex-col gap-1 mt-1">
                   {/* Scorecards */}
                   {(r.predicted_score || r.actual_score) && (
-                    <div className="flex gap-6 flex-wrap">
+                    <div className="flex gap-8 flex-wrap">
                       {r.predicted_score && (() => {
                         const winner = r.predicted_winner
                         const loser  = r.player_a === winner ? r.player_b : r.player_a
                         const sets   = r.predicted_score.split(/[\s,]+/).filter(s => s.includes('-'))
                         return (
                           <div>
-                            <p className="text-[10px] text-gray-400 mb-0.5">Predicted</p>
+                            <p className="text-xs font-semibold text-blue-500 mb-1 uppercase tracking-wide">Predicted</p>
                             <table className="text-xs font-mono border-separate" style={{ borderSpacing: '4px 0' }}>
                               <tbody>
-                                <tr className="text-gray-700 font-semibold">
-                                  <td className="font-sans text-[10px] text-gray-500 pr-1 text-right whitespace-nowrap">{winner.split(' ').pop()}</td>
-                                  {sets.map((s, i) => <td key={i} className="text-center w-4">{s.split('-')[0]}</td>)}
+                                <tr className="text-gray-800 font-bold">
+                                  <td className="font-sans text-xs text-gray-700 pr-2 text-right whitespace-nowrap">{winner.split(' ').pop()}</td>
+                                  {sets.map((s, i) => <td key={i} className="text-center w-5">{s.split('-')[0]}</td>)}
                                 </tr>
                                 <tr className="text-gray-400">
-                                  <td className="font-sans text-[10px] pr-1 text-right whitespace-nowrap">{loser.split(' ').pop()}</td>
-                                  {sets.map((s, i) => <td key={i} className="text-center w-4">{s.split('-')[1]}</td>)}
+                                  <td className="font-sans text-xs pr-2 text-right whitespace-nowrap">{loser.split(' ').pop()}</td>
+                                  {sets.map((s, i) => <td key={i} className="text-center w-5">{s.split('-')[1]}</td>)}
                                 </tr>
                               </tbody>
                             </table>
@@ -146,20 +146,25 @@ function AccuracyTracker() {
                         )
                       })()}
                       {r.actual_score && r.actual_winner && (() => {
-                        const aIsWinner = r.player_a === r.actual_winner
+                        // Always show actual winner on top
+                        const actualWinner = r.actual_winner
+                        const actualLoser  = r.player_a === actualWinner ? r.player_b : r.player_a
+                        const aIsWinner    = r.player_a === actualWinner
+                        const winIdx       = aIsWinner ? 0 : 1
+                        const loseIdx      = aIsWinner ? 1 : 0
                         const sets = r.actual_score.split(/[\s,]+/).filter(s => s.includes('-'))
                         return (
                           <div>
-                            <p className="text-[10px] text-gray-400 mb-0.5">Actual</p>
+                            <p className="text-xs font-semibold text-emerald-600 mb-1 uppercase tracking-wide">Actual</p>
                             <table className="text-xs font-mono border-separate" style={{ borderSpacing: '4px 0' }}>
                               <tbody>
-                                <tr className={aIsWinner ? 'text-gray-700 font-semibold' : 'text-gray-400'}>
-                                  <td className="font-sans text-[10px] text-gray-500 pr-1 text-right whitespace-nowrap">{r.player_a.split(' ').pop()}</td>
-                                  {sets.map((s, i) => <td key={i} className="text-center w-4">{s.split('-')[0]}</td>)}
+                                <tr className="text-gray-800 font-bold">
+                                  <td className="font-sans text-xs text-gray-700 pr-2 text-right whitespace-nowrap">{actualWinner.split(' ').pop()}</td>
+                                  {sets.map((s, i) => <td key={i} className="text-center w-5">{s.split('-')[winIdx]}</td>)}
                                 </tr>
-                                <tr className={!aIsWinner ? 'text-gray-700 font-semibold' : 'text-gray-400'}>
-                                  <td className="font-sans text-[10px] pr-1 text-right whitespace-nowrap">{r.player_b.split(' ').pop()}</td>
-                                  {sets.map((s, i) => <td key={i} className="text-center w-4">{s.split('-')[1]}</td>)}
+                                <tr className="text-gray-400">
+                                  <td className="font-sans text-xs pr-2 text-right whitespace-nowrap">{actualLoser.split(' ').pop()}</td>
+                                  {sets.map((s, i) => <td key={i} className="text-center w-5">{s.split('-')[loseIdx]}</td>)}
                                 </tr>
                               </tbody>
                             </table>

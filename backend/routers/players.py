@@ -42,17 +42,22 @@ def recent_form(player_name: str, n: int = 8):
     from routers.matches import fetch_live_player_matches
 
     # Live matches first (current tournament etc.)
-    live = fetch_live_player_matches(player_name, days_back=14)
+    raw_live = fetch_live_player_matches(player_name, days_back=14)
+
+    # Deduplicate live results by (opponent_last_name, tournament) — Sofascore can
+    # return the same match on multiple days (scheduled date vs played date)
+    seen_live = set()
+    live = []
+    for m in raw_live:
+        key = (m['opponent'].strip().split()[-1].lower(), m['tournament'])
+        if key not in seen_live:
+            seen_live.add(key)
+            live.append(m)
 
     names = find_player_names(player_name)
     df = load_data()
     mask = df['Player_1'].isin(names) | df['Player_2'].isin(names)
     csv_matches = df[mask].sort_values('Date', ascending=False)
-
-    # Exclude CSV rows that overlap with live dates to avoid duplicates
-    live_dates = {m['date'] for m in live}
-    if live_dates:
-        csv_matches = csv_matches[~csv_matches['Date'].dt.strftime('%Y-%m-%d').isin(live_dates)]
 
     csv_form = []
     for _, row in csv_matches.iterrows():
@@ -69,5 +74,16 @@ def recent_form(player_name: str, n: int = 8):
             'live':       False,
         })
 
-    form = (live + csv_form)[:n]
+    # Deduplicate combined list by (date, opponent_last_name) — prevents CSV and
+    # live Sofascore data from showing the same match twice
+    seen = set()
+    form = []
+    for m in (live + csv_form):
+        key = (m['date'], m['opponent'].strip().split()[-1].lower())
+        if key not in seen:
+            seen.add(key)
+            form.append(m)
+        if len(form) == n:
+            break
+
     return {'player': player_name, 'form': form}
