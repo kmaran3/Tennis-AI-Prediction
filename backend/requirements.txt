@@ -55,6 +55,7 @@ orjson==3.11.8
 overrides==7.7.0
 packaging==26.0
 pandas==3.0.2
+pyarrow>=16.0.0
 protobuf==6.33.6
 pybase64==1.4.3
 pydantic==2.12.5
